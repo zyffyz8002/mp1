@@ -8,8 +8,9 @@
 
 import UIKit
 import CoreLocation
+import AVFoundation
 
-class ViewController: UIViewController, CLLocationManagerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class InformationViewController: UIViewController, CLLocationManagerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
 
     @IBOutlet var Lat_label: UILabel!
@@ -26,7 +27,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIImagePicker
     
     @IBOutlet var response_label: UILabel!
     
-    @IBOutlet var myImageView: UIImageView!
+    @IBOutlet var myImageView: UIImageView! {
+        didSet {
+            myImageView.contentMode = .ScaleAspectFit
+        }
+    }
 //  @IBOutlet var myActivityIndicator: UIActivityIndicatorView!
     
     @IBOutlet var theta_slider: UISlider!
@@ -64,58 +69,47 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIImagePicker
     
     
     // This function is called when the user clicks on the button "Capture Image"
-    
-    @IBAction func clickedOnTakePicture(sender: AnyObject) {
-        
-        print("In clickedOnTakePicture")
-        
-        let picker = UIImagePickerController()
-        picker.delegate = self
-        picker.sourceType = UIImagePickerControllerSourceType.Camera
-        presentViewController(picker, animated: true, completion: nil)
 
+    @IBAction func clickedOnCaptureImage() {
+        
+        print("In clickedOnCaptureImage")
+        let status = AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo)
+        
+        if status == .Authorized {
+            let picker = UIImagePickerController()
+            picker.delegate = self
+            picker.sourceType = .Camera
+            //picker.showsCameraControls = false
+            picker.allowsEditing = true
+            picker.cameraCaptureMode = .Photo
+            presentViewController(picker, animated: true, completion: nil)
+        } else {
+            let noCameraPermissionAlert = UIAlertController(title: nil, message: "No permission to camera, please go to setting -> privacy -> camera", preferredStyle: .Alert)
+            noCameraPermissionAlert.addAction(UIAlertAction(title: "OK", style: .Cancel, handler: nil))
+            //presentViewController(noCameraPermissionAlert, animated: true, completion: nil)
+        }
     }
-
     
-    func imagePickerController(picker: UIImagePickerController, didFinishPickingImage image: UIImage!, editingInfo: [NSObject : AnyObject]!) {
+    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
         
-        print("In didFinishPickingImage");
-        
-        let width = image.size.width
-        let height = image.size.height
-        print ("Original Width:  \(width)")
-        print ("Original Height:  \(height)")
-        
-        // Image is resized by calling the function resizeImage
-        let resizedImage : UIImage = resizeImage(image, newWidth: 1000)
-        
-        let newWidth = resizedImage.size.width
-        let newHeight = resizedImage.size.height
-        print ("resized Width:  \(newWidth)")
-        print ("resized Height:  \(newHeight)")
-        
-        myImageView.image = resizedImage
-        
+        let status = AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo)
+        if status == .Authorized {
+            self.myImageView.image = info[UIImagePickerControllerEditedImage] as? UIImage
+        }
         dismissViewControllerAnimated(true, completion: nil)
+        
     }
     
-    
-    // This function is called when the image needs to be resized. The original image is usually pretty huge.
-    
-    func resizeImage(image: UIImage, newWidth: CGFloat) -> UIImage {
-        
-        print("In resizeImage");
-        
-        let scale = newWidth / image.size.width
-        let newHeight = image.size.height * scale
-        UIGraphicsBeginImageContext(CGSizeMake(newWidth, newHeight))
-        image.drawInRect(CGRectMake(0, 0, newWidth, newHeight))
-        let newImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        
-        return newImage
+    private func askForCamperaPermission() {
+        AVCaptureDevice.requestAccessForMediaType(AVMediaTypeVideo) {
+            granted in
+            if (granted) {
+                print("User allowed camera")
+            }  else {
+                print("User denied camera")
+            }
+        }
     }
-
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -123,7 +117,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIImagePicker
         
         print("In viewDidLoad")
         updateLocation()
-        
+        askForCamperaPermission()
         }
     
     
@@ -139,7 +133,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIImagePicker
         
                 // The IP address in the URL below needs to be changed according to the web server details.
         
-                let myUrl = NSURL(string: "http://10.190.90.23/nicmpfromapp/http-post-example-script.php");
+                let myUrl = NSURL(string: "http://71.69.186.89/nicmpfromapp/http-post-example-script.php");
                 let request = NSMutableURLRequest(URL:myUrl!);
                 request.HTTPMethod = "POST";
         
