@@ -105,14 +105,11 @@
 		80313D1E1C1AB7C600C14F99 /* mp1 */ = {
 			isa = PBXGroup;
 			children = (
-				80313D1F1C1AB7C600C14F99 /* AppDelegate.swift */,
 				80313D211C1AB7C600C14F99 /* ViewController.swift */,
 				80313D231C1AB7C600C14F99 /* Main.storyboard */,
 				8023BD181C35393200D52645 /* ResultsVC.swift */,
-				80313D291C1AB7C600C14F99 /* Assets.xcassets */,
 				80313D2B1C1AB7C600C14F99 /* LaunchScreen.storyboard */,
-				80313D2E1C1AB7C600C14F99 /* Info.plist */,
-				80313D261C1AB7C600C14F99 /* mp1.xcdatamodeld */,
+				DDDF84001D03A62C003E0840 /* Supportinf files */,
 			);
 			path = mp1;
 			sourceTree = "<group>";
@@ -133,6 +130,17 @@
 				80313D441C1AB7C600C14F99 /* Info.plist */,
 			);
 			path = mp1UITests;
+			sourceTree = "<group>";
+		};
+		DDDF84001D03A62C003E0840 /* Supportinf files */ = {
+			isa = PBXGroup;
+			children = (
+				80313D1F1C1AB7C600C14F99 /* AppDelegate.swift */,
+				80313D291C1AB7C600C14F99 /* Assets.xcassets */,
+				80313D2E1C1AB7C600C14F99 /* Info.plist */,
+				80313D261C1AB7C600C14F99 /* mp1.xcdatamodeld */,
+			);
+			name = "Supportinf files";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -202,7 +210,7 @@
 				TargetAttributes = {
 					80313D1B1C1AB7C600C14F99 = {
 						CreatedOnToolsVersion = 7.2;
-						DevelopmentTeam = ZZNR7RH8K2;
+						DevelopmentTeam = CY28H8F7X8;
 					};
 					80313D321C1AB7C600C14F99 = {
 						CreatedOnToolsVersion = 7.2;
@@ -412,8 +420,9 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = mp1/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.nicschool.mp1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.duke.edu.ant.mp1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 			};
@@ -426,8 +435,9 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = mp1/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.nicschool.mp1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.duke.edu.ant.mp1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 			};
