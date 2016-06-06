@@ -14,16 +14,33 @@ class ResultsVC: UIViewController {
     //@IBOutlet var myWebView: UIWebView!
 
     @IBOutlet weak var resultImageView: UIImageView!
+    @IBOutlet weak var skyViewFactor: UILabel!
+    @IBOutlet weak var threshold: UILabel!
     
-    var orinigalImage : UIImage?
+    var originalImage : UIImage?
+    private let imageProcessor = ImageProcessor()
+    
+    private func updateImage() {
+        if let resultImage = imageProcessor.resultImage {
+            resultImageView.image = resultImage
+            skyViewFactor.text = "\(imageProcessor.skyViewFactor!)"
+        }
+    }
+    
+    @IBAction func sliderChanged(sender: UISlider) {
+        threshold.text = "\(Int(sender.value))"
+        imageProcessor.threshold = Double(sender.value)
+        updateImage()
+    }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
-
         self.navigationItem.title = "Result"
-        resultImageView.image = orinigalImage
         
+        imageProcessor.inputImage = originalImage
+        updateImage()
     }
 
     override func didReceiveMemoryWarning() {

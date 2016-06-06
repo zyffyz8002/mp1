@@ -79,16 +79,19 @@ class ImageProcessor
             //var currentPixel = pixelBuffer
             //var base, offset: Int
             
+            let blackColor = getColorFromRgba(red: 0, green: 0, blue: 0, alpha: 255)
+            let whiteColor = getColorFromRgba(red: 255, green: 255, blue: 255, alpha: 255)
+            
             for  _ in 0..<Int(height) {
                 for  _ in 0..<Int(width) {
                     let pixel = currentPixel.memory
                     let brightness = (Double(getRedComponent(pixel)) + Double(getBlueComponent(pixel)) + Double(getGreenComponent(pixel))) / 3.0
                     
                     if brightness > threshold {
-                        currentPixel.memory = getColorFromRgba(red: 255, green: 255, blue: 255, alpha: 255)
+                        currentPixel.memory = whiteColor
                         skyPoints = skyPoints + 1
                     } else {
-                        currentPixel.memory = getColorFromRgba(red: 0, green: 0, blue: 0, alpha: 255)
+                        currentPixel.memory = blackColor
                         nonSkyPoints = nonSkyPoints + 1
                     }
                     
@@ -123,10 +126,8 @@ class ImageProcessor
             }*/
            /*
             */
-            let outputCGImage = CGBitmapContextCreateImage(context)
+            var outputCGImage = CGBitmapContextCreateImage(context)
             edittedImage = UIImage(CGImage: outputCGImage!, scale: inputImage!.scale, orientation: inputImage!.imageOrientation)
-            
-
         }
     }
     
