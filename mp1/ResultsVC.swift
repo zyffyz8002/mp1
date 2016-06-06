@@ -10,16 +10,19 @@ import UIKit
 
 class ResultsVC: UIViewController {
 
-    @IBOutlet var resultLabel: UILabel!
     
-    @IBOutlet var myWebView: UIWebView!
+    //@IBOutlet var myWebView: UIWebView!
+
+    @IBOutlet weak var resultImageView: UIImageView!
     
-    var toPass:String!
+    var orinigalImage : UIImage?
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        myWebView.loadHTMLString(toPass, baseURL: nil)
+
+        self.navigationItem.title = "Result"
+        resultImageView.image = orinigalImage
         
     }
 

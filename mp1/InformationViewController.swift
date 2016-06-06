@@ -131,77 +131,82 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
     
     @IBAction func myImageUploadRequest(sender: AnyObject) {
         
-                // The IP address in the URL below needs to be changed according to the web server details.
+        // The IP address in the URL below needs to be changed according to the web server details.
+        /*
+        let myUrl = NSURL(string: "http://192.168.199.125:8888/nicmpfromapp/http-post-example-script.php");
+        let request = NSMutableURLRequest(URL:myUrl!);
+        request.HTTPMethod = "POST";
         
-                let myUrl = NSURL(string: "http://71.69.186.89/nicmpfromapp/http-post-example-script.php");
-                let request = NSMutableURLRequest(URL:myUrl!);
-                request.HTTPMethod = "POST";
+        let param = [
+            "firstName"  : "Sriram",
+            "lastName"    : "Vepuri",
+            "theta" : String(theta_label.text!),
+            "phi": String(phi_label.text!)
+        ]
         
-                let param = [
-                    "firstName"  : "Sriram",
-                    "lastName"    : "Vepuri",
-                    "theta" : String(theta_label.text!),
-                    "phi": String(phi_label.text!)
-                ]
+        let boundary = generateBoundaryString()
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        let imageData = UIImageJPEGRepresentation(myImageView.image!, 1)
         
-                let boundary = generateBoundaryString()
-                request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-                let imageData = UIImageJPEGRepresentation(myImageView.image!, 1)
+        if(imageData==nil)  {
+            print("imageData is NULL")
+            return;
+        } else {
+            print("imageData has data")
+            print(imageData?.length)
+        }
         
-                if(imageData==nil)  {
-                    print("imageData is NULL")
-                    return;
-                } else {
-                    print("imageData has data")
-                    print(imageData?.length)
-                }
+        request.HTTPBody = createBodyWithParameters(param, filePathKey: "file", imageDataKey: imageData!, boundary: boundary)
         
-                request.HTTPBody = createBodyWithParameters(param, filePathKey: "file", imageDataKey: imageData!, boundary: boundary)
+        let timestamp = NSDateFormatter.localizedStringFromDate(NSDate(), dateStyle: .MediumStyle, timeStyle: .ShortStyle)
+        print(timestamp)
         
-                let timestamp = NSDateFormatter.localizedStringFromDate(NSDate(), dateStyle: .MediumStyle, timeStyle: .ShortStyle)
-                print(timestamp)
+        let sessionConfig = NSURLSessionConfiguration.defaultSessionConfiguration()
         
-                let sessionConfig = NSURLSessionConfiguration.defaultSessionConfiguration()
-       
         //      Use these below parameters to increase the time interval to receive response from the web server
         //      sessionConfig.timeoutIntervalForRequest = 500.0;
         //      sessionConfig.timeoutIntervalForResource = 500.0;
         
-                let session = NSURLSession(configuration: sessionConfig)
-                let task = session.dataTaskWithRequest(request, completionHandler: {(data, response, error) in
-                    
-                    // You can print out response object
-                    print("******* response = \(response)")
+        let session = NSURLSession(configuration: sessionConfig)
+        let task = session.dataTaskWithRequest(request, completionHandler: {(data, response, error) in
             
-                    // Print out reponse body
-                    let responseString = NSString(data: data!, encoding: NSUTF8StringEncoding)
-                    print("****** response data = \(responseString!)")
-
-                    self.response_label.text = responseString as? String
-                    print(self.response_label.text)
+            // You can print out response object
+            print("******* response = \(response)")
             
-                        dispatch_async(dispatch_get_main_queue(),{
-                            self.performSegueWithIdentifier("segueToResultsVC", sender: self)
-                        });
-                });
+            // Print out reponse body
+            let responseString = NSString(data: data!, encoding: NSUTF8StringEncoding)
+            print("****** response data = \(responseString!)")
+            
+            self.response_label.text = responseString as? String
+            print(self.response_label.text)
+            
+            dispatch_async(dispatch_get_main_queue(),{
+                self.performSegueWithIdentifier("segueToResultsVC", sender: self)
+            });
+        });
         
-            task.resume()
+        task.resume()*/
+        let imageProcessor = ImageProcessor()
+        imageProcessor.inputImage = myImageView.image
+        self.performSegueWithIdentifier("segueToResultsVC", sender: imageProcessor.resultImage)
     }
     
     
     // This function is called to take the user to the next screen in the app, when the image processing result is sent by the web server.
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
+        print("prepare for segue")
         if (segue.identifier == "segueToResultsVC") {
             
             let svc = segue.destinationViewController as! ResultsVC;
-            svc.toPass = response_label.text
+            let image = sender as! UIImage
+            svc.orinigalImage = image
             
         }
     }
     
     
-        func createBodyWithParameters(parameters: [String: String]?, filePathKey: String?, imageDataKey: NSData, boundary: String) -> NSData {
+    func createBodyWithParameters(parameters: [String: String]?, filePathKey: String?, imageDataKey: NSData, boundary: String) -> NSData {
         let body = NSMutableData();
         
         if parameters != nil {
@@ -214,21 +219,21 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
         
         let filename = "location-image.jpg"
         let mimetype = "image/jpg"
-
-//        let filename = "user-profile.png"
-//        let mimetype = "image/png"
-            
+        
+        //        let filename = "user-profile.png"
+        //        let mimetype = "image/png"
+        
         body.appendString("--\(boundary)\r\n")
         body.appendString("Content-Disposition: form-data; name=\"\(filePathKey!)\"; filename=\"\(filename)\"\r\n")
         body.appendString("Content-Type: \(mimetype)\r\n\r\n")
-            
+        
         print("imageDataKey details ....")
         print(imageDataKey.length)
-            
+        
         body.appendData(imageDataKey)
         body.appendString("\r\n")
         body.appendString("--\(boundary)--\r\n")
-            
+        
         return body
     }
     
