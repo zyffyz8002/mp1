@@ -21,9 +21,9 @@ class ResultsVC: UIViewController {
     private let imageProcessor = ImageProcessor()
     
     private func updateImage() {
-        if let resultImage = imageProcessor.resultImage {
+        if let resultImage = imageProcessor.overlayImage {
             resultImageView.image = resultImage
-            skyViewFactor.text = "\(imageProcessor.skyViewFactor!)"
+            skyViewFactor.text = String(format: "%.3f", imageProcessor.skyViewFactor!)
         }
     }
     

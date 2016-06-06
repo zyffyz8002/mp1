@@ -26,17 +26,27 @@ class ImageProcessor
             }
         }
     }
+    
     private var edittedImage : UIImage?
+    private var combinedImage : UIImage?
     private var skyPoints = 0.0
     private var nonSkyPoints = 0.0
+    
     var resultImage : UIImage? {
         get {
             return edittedImage
         }
     }
     
+    var overlayImage : UIImage? {
+        get {
+            return combinedImage
+        }
+    }
+    
     private func initAllStatus() {
         edittedImage = nil
+        combinedImage = nil
         skyPoints = 0.0
         nonSkyPoints = 0.0
     }
@@ -99,35 +109,29 @@ class ImageProcessor
                 }
             }
             
-           /*
-            var red, green, blue:UInt8
-            var base, offset:Int
-            
-            for y in 0...(height - 1) {
-                
-                base = y * height * 4
-                for x in 0...(width - 1) {
-                    
-                    offset = base + x * 4
-                    
-                    red   = pixelBuffer[offset + 1]
-                    green = pixelBuffer[offset + 2]
-                    blue  = pixelBuffer[offset + 3]
-                    
-                    let brightness = (Double(red) + Double(green) + Double(blue))/3
-                    if brightness > threshold {
-                       // currentPixel.memory = getColorFromRgba(red: 255, green: 255, blue: 255, alpha: 255)
-                        skyPoints = skyPoints + 1
-                    } else {
-                       // currentPixel.memory = getColorFromRgba(red: 0, green: 0, blue: 0, alpha: 255)
-                        nonSkyPoints = nonSkyPoints + 1
-                    }
-                }
-            }*/
-           /*
-            */
-            var outputCGImage = CGBitmapContextCreateImage(context)
+
+            let outputCGImage = CGBitmapContextCreateImage(context)
             edittedImage = UIImage(CGImage: outputCGImage!, scale: inputImage!.scale, orientation: inputImage!.imageOrientation)
+            mergeTwoImage()
+        }
+    }
+    
+    private func mergeTwoImage() {
+        if inputImage != nil {
+            let imageRect = CGRect(origin: CGPointZero, size: inputImage!.size)
+            //let height = CGRectGetHeight(imageRect)
+            //let width = CGRectGetWidth(imageRect)
+            
+            UIGraphicsBeginImageContext(inputImage!.size)
+            let context = UIGraphicsGetCurrentContext()
+            CGContextDrawImage(context, imageRect, inputImage!.CGImage)
+            CGContextSetBlendMode(context, CGBlendMode.SourceAtop)
+            CGContextSetAlpha(context, 0.5)
+            CGContextDrawImage(context, imageRect, edittedImage!.CGImage)
+            let rotatedImage = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+            
+            combinedImage = UIImage(CGImage: rotatedImage.CGImage!, scale: 1, orientation: UIImageOrientation(rawValue: -90)!)
         }
     }
     
