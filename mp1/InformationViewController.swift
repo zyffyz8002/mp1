@@ -9,6 +9,7 @@
 import UIKit
 import CoreLocation
 import AVFoundation
+import Foundation
 
 class InformationViewController: UIViewController, CLLocationManagerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
@@ -67,8 +68,47 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
         
     }
     
+    private let picker = ProtraitUIImagePickerController()
     
     // This function is called when the user clicks on the button "Capture Image"
+    @objc func changeToConfirmScreenOverlay() {
+        if let cameraOverlayView = picker.cameraOverlayView as? CameraOverlayView {
+            let pickerFrame = picker.view.frame
+            let shortSide = pickerFrame.width < pickerFrame.height ?  pickerFrame.width : pickerFrame.height
+            let longSide = pickerFrame.width >= pickerFrame.height ?  pickerFrame.width : pickerFrame.height
+            let overlayNewFrame = CGRectMake(0, 0, shortSide, longSide - PhotoScreenBounds.confirmScreenLowerBound)
+            cameraOverlayView.frame = overlayNewFrame
+            cameraOverlayView.screenMode = .photoConfirmScreen
+        }
+    }
+    
+    @objc func changeToPhotoCatureOverlay(picker : UIImagePickerController) {
+        if let cameraOverlayView = self.picker.cameraOverlayView as? CameraOverlayView {
+            let pickerFrame = self.picker.view.frame
+            cameraOverlayView.frame = pickerFrame
+            cameraOverlayView.screenMode = .photoCaptureScreen
+        }
+ 
+        /*
+        let cameraOverlayView = CameraOverlayViewController(nibName: "CameraOverlayViewController", bundle: nil).view as! CameraOverlayView
+        cameraOverlayView.frame = picker.view.frame
+        cameraOverlayView.screenMode = .photoCaptureScreen
+        picker.cameraOverlayView = cameraOverlayView
+ */
+    }
+    
+    private func setCameraPicker() {
+        let status = AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo)
+        
+        if status == .Authorized {
+            picker.delegate = self
+            picker.sourceType = .Camera
+            picker.cameraCaptureMode = .Photo
+        }
+    }
+    
+
+    
     
     @IBAction func clickedOnCaptureImage() {
         
@@ -76,26 +116,73 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
         let status = AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo)
         
         if status == .Authorized {
-            let picker = UIImagePickerController()
-            picker.delegate = self
-            picker.sourceType = .Camera
-            //picker.showsCameraControls = false
-            picker.allowsEditing = true
-            picker.cameraCaptureMode = .Photo
-            presentViewController(picker, animated: true, completion: nil)
+            if (UIImagePickerController.isSourceTypeAvailable(.Camera)) {
+            
+                NSNotificationCenter.defaultCenter().addObserver(
+                    self,
+                    selector: #selector(changeToConfirmScreenOverlay),
+                    name: "_UIImagePickerControllerUserDidCaptureItem",
+                    object: nil
+                )
+                NSNotificationCenter.defaultCenter().addObserver(
+                    self,
+                    selector: #selector(changeToPhotoCatureOverlay),
+                    name: "_UIImagePickerControllerUserDidRejectItem",
+                    object: nil
+                )
+                
+                let currentDevice = UIDevice.currentDevice()
+                if !picker.isBeingPresented() {
+                    presentViewController( self.picker, animated: false, completion: {
+                        
+                        let cameraOverlayView = CameraOverlayViewController(nibName: "CameraOverlayViewController", bundle: nil).view as! CameraOverlayView
+                        cameraOverlayView.frame = self.picker.view.frame
+                        cameraOverlayView.screenMode = .photoCaptureScreen
+                        self.picker.cameraOverlayView = cameraOverlayView
+                        while (currentDevice.generatesDeviceOrientationNotifications) {
+                            currentDevice.endGeneratingDeviceOrientationNotifications()
+                        }
+                        
+                    })
+                }
+                
+                //picker.view.setNeedsLayout()
+            }
+            
         } else {
             let noCameraPermissionAlert = UIAlertController(title: nil, message: "No permission to camera, please go to setting -> privacy -> camera", preferredStyle: .Alert)
             noCameraPermissionAlert.addAction(UIAlertAction(title: "OK", style: .Cancel, handler: nil))
-            //presentViewController(noCameraPermissionAlert, animated: true, completion: nil)
         }
     }
     
+    
+    
     @IBAction func clickedOnPhotoLibrary() {
-        let picker = UIImagePickerController()
         picker.delegate = self
         picker.sourceType = .PhotoLibrary
         presentViewController(picker, animated: true, completion: nil)
     }
+    
+    private var displayImage : UIImage? {
+        didSet {
+            myImageView.image = displayImage
+        }
+    }
+    
+    private func createSquareImage(fromImage originalImage: UIImage) -> UIImage {
+        let shortSide = originalImage.size.width < originalImage.size.height ? originalImage.size.width : originalImage.size.height
+        let longSide = originalImage.size.width >= originalImage.size.height ? originalImage.size.width : originalImage.size.height
+        let clipped = (longSide - shortSide) / 2
+        let rect = CGRectMake(0, clipped, shortSide, shortSide)
+        
+        UIGraphicsBeginImageContextWithOptions(rect.size, false, originalImage.scale)
+        originalImage.drawAtPoint(CGPointMake(-rect.origin.x, -rect.origin.y))
+        let croppedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return croppedImage
+    }
+    
     
     
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
@@ -104,14 +191,16 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
         case .Camera:
             let status = AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo)
             if status == .Authorized {
-                self.myImageView.image = info[UIImagePickerControllerEditedImage] as? UIImage
+                if let originalImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
+                    displayImage = createSquareImage(fromImage: originalImage)
+                }
             }
         case .PhotoLibrary:
             self.myImageView.image = info[UIImagePickerControllerOriginalImage] as? UIImage
         default:
             break
         }
-
+        
         dismissViewControllerAnimated(true, completion: nil)
         
     }
@@ -127,6 +216,25 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
         }
     }
     
+    override func shouldAutorotate() -> Bool {
+        return false
+    }
+    
+    override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
+        return UIInterfaceOrientationMask.Portrait
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        let currentDevice = UIDevice.currentDevice()
+        while (currentDevice.generatesDeviceOrientationNotifications) {
+            currentDevice.endGeneratingDeviceOrientationNotifications()
+        }
+     }
+    
+    @objc private func printOrientationChange() {
+        print("orientation changed")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -134,8 +242,12 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
         print("In viewDidLoad")
         updateLocation()
         askForCamperaPermission()
+        setCameraPicker()
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(printOrientationChange), name: UIDeviceOrientationDidChangeNotification, object: nil)
+        
     }
     
+
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -171,7 +283,6 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
     func updateLocation() {
         self.locationManager.delegate = self
         self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        //self.locationManager.distanceFilter = 10
         self.locationManager.requestWhenInUseAuthorization()
         self.locationManager.startUpdatingLocation()
         self.locationManager.startUpdatingHeading()
@@ -206,12 +317,16 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
         let concatnatedValue = dir + " " + String(format:"%.2f", h)
         magLabel.text = concatnatedValue
         //print(concatnatedValue)
-        
     }
     
 }
 
-
+struct PhotoScreenBounds {
+    static let captureScreenUpperBound : CGFloat = 40
+    static let captureScreenLowerBound : CGFloat = 100
+    static let confirmScreenLowerBound : CGFloat = 70
+    static let confirmScreenUpperBound : CGFloat = 70
+}
 
 
 extension NSMutableData {
@@ -227,5 +342,17 @@ extension NSMutableData {
         appendData(data!)
     }
 }
+
+class ProtraitUIImagePickerController : UIImagePickerController {
+    override func shouldAutorotate() -> Bool {
+        return false
+    }
+    
+    override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
+        return UIInterfaceOrientationMask.Portrait
+    }
+
+}
+
 
 

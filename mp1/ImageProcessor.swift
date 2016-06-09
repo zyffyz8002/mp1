@@ -122,7 +122,7 @@ class ImageProcessor
             //let height = CGRectGetHeight(imageRect)
             //let width = CGRectGetWidth(imageRect)
             
-            UIGraphicsBeginImageContext(inputImage!.size)
+            UIGraphicsBeginImageContextWithOptions(inputImage!.size, false, inputImage!.scale)
             let context = UIGraphicsGetCurrentContext()
             CGContextDrawImage(context, imageRect, inputImage!.CGImage)
             CGContextSetBlendMode(context, CGBlendMode.SourceAtop)
