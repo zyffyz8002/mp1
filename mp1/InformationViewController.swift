@@ -10,6 +10,7 @@ import UIKit
 import CoreLocation
 import AVFoundation
 import Foundation
+import CoreMotion
 
 class InformationViewController: UIViewController, CLLocationManagerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
@@ -225,6 +226,7 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
     }
     
     override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
         let currentDevice = UIDevice.currentDevice()
         while (currentDevice.generatesDeviceOrientationNotifications) {
             currentDevice.endGeneratingDeviceOrientationNotifications()
@@ -233,6 +235,32 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
     
     @objc private func printOrientationChange() {
         print("orientation changed")
+    }
+    
+    @IBOutlet weak var levelerView: LevelerView!
+    private var motionManager = CMMotionManager()
+    
+    private func startToCheckAttitude() {
+        let queue = NSOperationQueue()
+        if motionManager.deviceMotionAvailable {
+            motionManager.deviceMotionUpdateInterval = LevelerParameters.UpdateInterval
+            motionManager.startDeviceMotionUpdatesToQueue(queue)
+            {
+                [weak weakself = self] (data, error) in
+                
+                guard let motionData = data else {return }
+                let xoffset = CGFloat(motionData.attitude.roll) * LevelerParameters.Sensitivity
+                let yoffset = CGFloat(motionData.attitude.pitch) * LevelerParameters.Sensitivity
+                
+                NSOperationQueue.mainQueue().addOperationWithBlock {
+                    weakself?.levelerView.offset = CGPoint(x: xoffset, y:yoffset)
+                }
+            }
+        }
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
     }
     
     override func viewDidLoad() {
@@ -244,6 +272,7 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
         askForCamperaPermission()
         setCameraPicker()
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(printOrientationChange), name: UIDeviceOrientationDidChangeNotification, object: nil)
+        startToCheckAttitude()
         
     }
     
@@ -328,6 +357,11 @@ struct PhotoScreenBounds {
     static let confirmScreenUpperBound : CGFloat = 70
 }
 
+struct LevelerParameters {
+    static let Radius: CGFloat = 10
+    static let Sensitivity : CGFloat = 50
+    static let UpdateInterval : Double = 0.05
+}
 
 extension NSMutableData {
     

@@ -20,6 +20,7 @@
 		DD8636B71D07B57D008AFB26 /* CameraOverlayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD8636B51D07B57D008AFB26 /* CameraOverlayViewController.swift */; };
 		DD8636B81D07B57D008AFB26 /* CameraOverlayViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = DD8636B61D07B57D008AFB26 /* CameraOverlayViewController.xib */; };
 		DD8636BA1D07B5A2008AFB26 /* CameraOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD8636B91D07B5A2008AFB26 /* CameraOverlayView.swift */; };
+		DDFEA9781D0904E9005B94F0 /* LevelerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDFEA9771D0904E9005B94F0 /* LevelerView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,6 +60,7 @@
 		DD8636B51D07B57D008AFB26 /* CameraOverlayViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraOverlayViewController.swift; sourceTree = "<group>"; };
 		DD8636B61D07B57D008AFB26 /* CameraOverlayViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CameraOverlayViewController.xib; sourceTree = "<group>"; };
 		DD8636B91D07B5A2008AFB26 /* CameraOverlayView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraOverlayView.swift; sourceTree = "<group>"; };
+		DDFEA9771D0904E9005B94F0 /* LevelerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LevelerView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -114,6 +116,7 @@
 				DD8636B51D07B57D008AFB26 /* CameraOverlayViewController.swift */,
 				DD8636B61D07B57D008AFB26 /* CameraOverlayViewController.xib */,
 				80313D211C1AB7C600C14F99 /* InformationViewController.swift */,
+				DDFEA9771D0904E9005B94F0 /* LevelerView.swift */,
 				DD02359D1D05161400F1574C /* ImageProcessor.swift */,
 				DD8636B91D07B5A2008AFB26 /* CameraOverlayView.swift */,
 				80313D231C1AB7C600C14F99 /* Main.storyboard */,
@@ -284,6 +287,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				80313D221C1AB7C600C14F99 /* InformationViewController.swift in Sources */,
+				DDFEA9781D0904E9005B94F0 /* LevelerView.swift in Sources */,
 				8023BD191C35393200D52645 /* ResultsVC.swift in Sources */,
 				DD8636B71D07B57D008AFB26 /* CameraOverlayViewController.swift in Sources */,
 				DD8636BA1D07B5A2008AFB26 /* CameraOverlayView.swift in Sources */,
