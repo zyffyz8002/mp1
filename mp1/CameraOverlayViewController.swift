@@ -7,12 +7,28 @@
 //
 
 import UIKit
+import CoreMotion
 
 class CameraOverlayViewController: UIViewController {
+ 
+    private func addLevelerView() {
+        let levelerView = LevelerView()
+        levelerView.frame = CGRect(origin: CGPoint(x: 100, y: 0), size: CGSize(width: LevelerParameters.MaxRange, height: LevelerParameters.MaxRange))
+        self.view.addSubview(levelerView)
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        
+        super.viewDidAppear(animated)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        addLevelerView()
         // Do any additional setup after loading the view.
     }
 

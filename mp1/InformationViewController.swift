@@ -69,7 +69,8 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
         
     }
     
-    private let picker = ProtraitUIImagePickerController()
+    private var picker = LevelerUIImagePickerController()
+       // ProtraitUIImagePickerController()
     
     // This function is called when the user clicks on the button "Capture Image"
     @objc func changeToConfirmScreenOverlay() {
@@ -89,13 +90,6 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
             cameraOverlayView.frame = pickerFrame
             cameraOverlayView.screenMode = .photoCaptureScreen
         }
- 
-        /*
-        let cameraOverlayView = CameraOverlayViewController(nibName: "CameraOverlayViewController", bundle: nil).view as! CameraOverlayView
-        cameraOverlayView.frame = picker.view.frame
-        cameraOverlayView.screenMode = .photoCaptureScreen
-        picker.cameraOverlayView = cameraOverlayView
- */
     }
     
     private func setCameraPicker() {
@@ -105,10 +99,11 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
             picker.delegate = self
             picker.sourceType = .Camera
             picker.cameraCaptureMode = .Photo
+            //picker.mediaTypes = .kUTTypeImage
         }
     }
     
-
+    
     
     
     @IBAction func clickedOnCaptureImage() {
@@ -118,7 +113,6 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
         
         if status == .Authorized {
             if (UIImagePickerController.isSourceTypeAvailable(.Camera)) {
-            
                 NSNotificationCenter.defaultCenter().addObserver(
                     self,
                     selector: #selector(changeToConfirmScreenOverlay),
@@ -132,22 +126,24 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
                     object: nil
                 )
                 
+                //picker.modalPresentationStyle = UIModalPresentationStyle.FullScreen
                 let currentDevice = UIDevice.currentDevice()
                 if !picker.isBeingPresented() {
                     presentViewController( self.picker, animated: false, completion: {
+                        let cameraOverlayViewController = CameraOverlayViewController(nibName: "CameraOverlayViewController", bundle: nil)
+                        let cameraOverlayView = cameraOverlayViewController.view as! CameraOverlayView
                         
-                        let cameraOverlayView = CameraOverlayViewController(nibName: "CameraOverlayViewController", bundle: nil).view as! CameraOverlayView
                         cameraOverlayView.frame = self.picker.view.frame
                         cameraOverlayView.screenMode = .photoCaptureScreen
                         self.picker.cameraOverlayView = cameraOverlayView
+                        self.picker.addLevelerViewToOverlayView()
+                        
                         while (currentDevice.generatesDeviceOrientationNotifications) {
                             currentDevice.endGeneratingDeviceOrientationNotifications()
                         }
-                        
                     })
                 }
-                
-                //picker.view.setNeedsLayout()
+                picker.view.setNeedsLayout()
             }
             
         } else {
@@ -184,6 +180,13 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
         return croppedImage
     }
     
+    private func normalizeImage(image: UIImage) -> UIImage {
+        UIGraphicsBeginImageContextWithOptions(image.size, false, image.scale)
+        image.drawInRect(CGRect(origin: CGPoint(x:0, y:0), size: image.size))
+        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return normalizedImage
+    }
     
     
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
@@ -197,13 +200,14 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
                 }
             }
         case .PhotoLibrary:
-            self.myImageView.image = info[UIImagePickerControllerOriginalImage] as? UIImage
+            if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
+                displayImage = normalizeImage(image)
+            }
+            
         default:
             break
         }
-        
         dismissViewControllerAnimated(true, completion: nil)
-        
     }
     
     private func askForCamperaPermission() {
@@ -246,14 +250,16 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
             motionManager.deviceMotionUpdateInterval = LevelerParameters.UpdateInterval
             motionManager.startDeviceMotionUpdatesToQueue(queue)
             {
-                [weak weakself = self] (data, error) in
+                [weak weakSelf = self] (data, error) in
                 
                 guard let motionData = data else {return }
-                let xoffset = CGFloat(motionData.attitude.roll) * LevelerParameters.Sensitivity
+                var xoffset = CGFloat(motionData.attitude.roll)
                 let yoffset = CGFloat(motionData.attitude.pitch) * LevelerParameters.Sensitivity
                 
+                xoffset = min(abs(xoffset), 3-abs(xoffset)) * xoffset / abs(xoffset) * LevelerParameters.Sensitivity
+                
                 NSOperationQueue.mainQueue().addOperationWithBlock {
-                    weakself?.levelerView.offset = CGPoint(x: xoffset, y:yoffset)
+                    weakSelf?.levelerView.offset = CGPoint(x: xoffset, y:yoffset)
                 }
             }
         }
@@ -261,6 +267,7 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
+        startToCheckAttitude()
     }
     
     override func viewDidLoad() {
@@ -274,6 +281,16 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(printOrientationChange), name: UIDeviceOrientationDidChangeNotification, object: nil)
         startToCheckAttitude()
         
+    }
+    
+    private func StopCheckingAttitude()
+    {
+        motionManager.stopDeviceMotionUpdates()
+    }
+    
+    override func viewDidDisappear(animated: Bool) {
+        super.viewDidDisappear(animated)
+        StopCheckingAttitude()
     }
     
 
@@ -318,7 +335,8 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
     }
     
     func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        //          locationManager.stopUpdatingLocation() // Stop Location Manager - keep here to run just once
+        //          locationManager.stopUpdatingLocation() 
+        //  Stop Location Manager - keep here to run just once
         LatitudeGPS = String(format: "%.2f", manager.location!.coordinate.latitude)
         LongitudeGPS = String(format: "%.2f", manager.location!.coordinate.longitude)
         Lat_label.text = LatitudeGPS as String
@@ -343,9 +361,15 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
             }
         }
         
-        let concatnatedValue = dir + " " + String(format:"%.2f", h)
+        let concatnatedValue = dir + " " + String(format:"%.2f", h2)
         magLabel.text = concatnatedValue
-        //print(concatnatedValue)
+        
+        NSOperationQueue.mainQueue().addOperationWithBlock {
+            
+            [weak weakSelf = self] in
+            weakSelf?.levelerView.direction = CGFloat(h2)
+        }
+        
     }
     
 }
@@ -358,9 +382,11 @@ struct PhotoScreenBounds {
 }
 
 struct LevelerParameters {
-    static let Radius: CGFloat = 10
-    static let Sensitivity : CGFloat = 50
+    static let Radius: CGFloat = 5
+    static let Sensitivity : CGFloat = 35 / 1.5
     static let UpdateInterval : Double = 0.05
+    static let MaxRange : CGFloat = 70
+    
 }
 
 extension NSMutableData {
@@ -377,7 +403,9 @@ extension NSMutableData {
     }
 }
 
-class ProtraitUIImagePickerController : UIImagePickerController {
+class LevelerUIImagePickerController : UIImagePickerController, CLLocationManagerDelegate {
+    
+    static var viewNumber = 0
     override func shouldAutorotate() -> Bool {
         return false
     }
@@ -385,7 +413,74 @@ class ProtraitUIImagePickerController : UIImagePickerController {
     override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
         return UIInterfaceOrientationMask.Portrait
     }
+    
+    private let motionManager = CMMotionManager()
+    private var levelerView : LevelerView?
+    
+    let locationManager = CLLocationManager()
+    let locationManagerDirection = CLLocationManager()
+    
 
+    private func startToCheckAttitude() {
+        let queue = NSOperationQueue()
+        if motionManager.deviceMotionAvailable {
+            motionManager.deviceMotionUpdateInterval = LevelerParameters.UpdateInterval
+            motionManager.startDeviceMotionUpdatesToQueue(queue)
+            {
+                [weak weakSelf = self](data, error) in
+                
+                guard let motionData = data else {return }
+                var xoffset = CGFloat(motionData.attitude.roll)
+                let yoffset = CGFloat(motionData.attitude.pitch) * LevelerParameters.Sensitivity
+                
+                xoffset = min(abs(xoffset), 3-abs(xoffset)) * xoffset / abs(xoffset) * LevelerParameters.Sensitivity
+                
+                NSOperationQueue.mainQueue().addOperationWithBlock {
+                    weakSelf!.levelerView!.offset = CGPoint(x: xoffset, y:yoffset)
+                }
+            }
+        }
+    }
+    
+    func addLevelerViewToOverlayView() {
+        if self.cameraOverlayView != nil {
+            for subview in (cameraOverlayView?.subviews)! {
+                levelerView = subview as? LevelerView
+                if levelerView != nil {
+                    levelerView?.shouldDrawBackground = true
+                    break
+                }
+            }
+        }
+        startToCheckAttitude()
+        updateLocation()
+    }
+    override func viewDidDisappear(animated: Bool) {
+        super.viewDidDisappear(animated)
+        motionManager.stopDeviceMotionUpdates()
+    }
+    
+    func updateLocation() {
+        self.locationManager.delegate = self
+        self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        self.locationManager.requestWhenInUseAuthorization()
+        self.locationManager.startUpdatingHeading()
+    }
+    
+    func locationManager(manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
+        let h2 = newHeading.trueHeading // will be -1 if we have no location info
+        
+        NSOperationQueue.mainQueue().addOperationWithBlock {
+            
+            [weak weakSelf = self] in
+            if h2 > 0 {
+                if weakSelf?.levelerView != nil {
+                    weakSelf?.levelerView!.direction = CGFloat(h2)
+                }
+            }
+        }
+    }
+    
 }
 
 
