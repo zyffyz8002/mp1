@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class ResultsVC: UIViewController {
+class ResultsVC: UIViewController, UITextFieldDelegate {
 
     @IBOutlet weak var resultImageView: UIImageView!
     @IBOutlet weak var skyViewFactor: UILabel!
@@ -21,10 +21,11 @@ class ResultsVC: UIViewController {
     
     @IBAction func showOriginalImage(sender: UISwitch) {
         if sender.on {
-            originalImageView.alpha = 0.5
+            originalImageAlpha = 0.5
         } else {
-            originalImageView.alpha = 0
+            originalImageAlpha = 0
         }
+        originalImageView.alpha = originalImageAlpha
     }
 
     @IBAction func sliderChanged(sender: UISlider) {
@@ -33,79 +34,103 @@ class ResultsVC: UIViewController {
         updateImage()
     }
     
-    @IBAction func saveResult(sender: UIBarButtonItem) {
-        // error if no images to save
-        let originalImageData = UIImagePNGRepresentation(originalImageView.image!)
-        let edittedImageData = UIImagePNGRepresentation(resultImageView.image!)
-        
-        managedObjectContext?.performBlock {
-            var override = false
-            var imageResult = ImageResult.getProject(withTitle: self.projectTitle.text!, inManagedObjectContext: self.managedObjectContext!)
-            if (imageResult != nil) {
-                
-                let alert = UIAlertController(title: "Repeated Project", message: "There is already a project named \(self.projectTitle.text). Do you want to override it?", preferredStyle: UIAlertControllerStyle.Alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: { (action: UIAlertAction) in
-                    override = true
-                }))
-                alert.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: {(action: UIAlertAction) in override = false} ))
-                
-                dispatch_async(dispatch_get_main_queue()) {
-                            
-                }
+    private func saveProjectToCoreData(to projectContent : ImageResult) {
+        projectContent.managedObjectContext?.performBlockAndWait {
+            if projectContent.saveProject(withProject: self.imageProject!) {
+                let sucessAlert = UIAlertController(title: "Saving", message: "Saving sucess!", preferredStyle: UIAlertControllerStyle.Alert)
+                sucessAlert.addAction(UIAlertAction(title: "OK", style: .Default, handler:  nil))
+                self.presentViewController(sucessAlert, animated: true, completion: nil)
             } else {
-                override = true
-                ImageResult.createProject(withTitle: self.projectTitle.text!, inManagedObjectContext: self.managedObjectContext!)
+                let failAlert = UIAlertController(title: "Saving", message: "Saving fail!", preferredStyle: UIAlertControllerStyle.Alert)
+                failAlert.addAction(UIAlertAction(title: "OK", style: .Default, handler:  nil))
+                self.presentViewController(failAlert, animated: true, completion: nil)
             }
-            
-            if (override) {
-                imageResult?.edittedImageAddress = edittedImageData
-                imageResult?.originalImageAddress = edittedImageData
+        }
+    }
+    
+    @IBAction func saveResult(sender: UIBarButtonItem) {
+        
+        var projectContent : ImageResult?
+        
+        managedObjectContext?.performBlockAndWait {
+            [unowned self] in
+            projectContent = ImageResult.getProject(withTitle: self.projectTitle.text!, inManagedObjectContext: self.managedObjectContext!)
+        }
+        
+        if (projectContent != nil) {
+            let alert = UIAlertController(title: "Repeated Project", message: "There is already a project named \"\(self.projectTitle.text!)\". Do you want to override it?", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction( UIAlertAction(title: "OK",style: .Default, handler: { action in self.saveProjectToCoreData(to: projectContent!)}) )
+            alert.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: nil))
+            presentViewController(alert, animated: true, completion: nil)
+        } else {
+            managedObjectContext?.performBlockAndWait {
+                [unowned self] in
+                projectContent = ImageResult.createProject(withTitle: self.projectTitle.text!, inManagedObjectContext: self.managedObjectContext!)!
             }
-            
+            saveProjectToCoreData(to: projectContent!)
         }
     }
     
     var managedObjectContext : NSManagedObjectContext? =
         (UIApplication.sharedApplication().delegate as? AppDelegate)?.managedObjectContext
     
-    var originalImage : UIImage?
+    var imageProject : ImageProject? {
+        didSet {
+            print("processor passed")
+        }
+    }
+    private var originalImageAlpha : CGFloat = 0.5
     private let imageProcessor = ImageProcessor()
-    
     private func updateImage() {
-        if let resultImage = imageProcessor.resultImage {
-            spinner.stopAnimating()
+        projectTitle.text = imageProject!.title
+        if let resultImage = imageProject!.edittedImage {
             resultImageView.image = resultImage
-            originalImageView.image = originalImage
-            originalImageView.alpha = 0.5
-            skyViewFactor.text = String(format: "%.3f", imageProcessor.skyViewFactor!)
+            originalImageView.image = imageProject!.originalImage
+            
+            originalImageView.alpha = originalImageAlpha
+            skyViewFactor.text = String(format: "%.3f", imageProject!.skyViewFactor!)
+            thresholdSlider.value = Float(imageProject!.threshold!)
+            threshold.text = String(Int(imageProject!.threshold!))
+            spinner.stopAnimating()
         }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationItem.title = "Result"
+        self.projectTitle.delegate = self
+        
         passImage()
+        print("result vc view did load")
+    }
+    
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        projectTitle.resignFirstResponder()
+        imageProject?.title = projectTitle.text
+        return true
     }
     
     private func passImage() {
         
         spinner.startAnimating()
-        if let passedImage = originalImage  {
+        if let passedProject = imageProject  {
             dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) {
                 [weak weakSelf = self] in
-                if passedImage == weakSelf!.originalImage {
-                    weakSelf!.imageProcessor.inputImage = passedImage
-                    weakSelf!.imageProcessor.processWithDefaultThershold()
-                    weakSelf!.thresholdSlider.value = Float(weakSelf!.imageProcessor.threshold)
+                if passedProject.originalImage == weakSelf!.imageProject!.originalImage {
+                    weakSelf!.imageProcessor.inputProject = passedProject
+                    //weakSelf!.imageProcessor.processWithDefaultThershold()
+                    //weakSelf!.thresholdSlider.value = Float(weakSelf!.imageProcessor.threshold!)
                     dispatch_sync(dispatch_get_main_queue()) {
-                        if passedImage == weakSelf!.originalImage{
+                        if passedProject.originalImage == weakSelf!.imageProject!.originalImage {
                             weakSelf!.updateImage()
                         } else {
                             weakSelf!.spinner.stopAnimating()
                         }
                     }
                 } else {
-                    weakSelf!.spinner.stopAnimating()
+                    dispatch_sync(dispatch_get_main_queue()) {
+                        weakSelf!.spinner.stopAnimating()
+                    }
                 }
             }
         }

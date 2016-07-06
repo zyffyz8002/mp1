@@ -17,6 +17,10 @@
 		80313D381C1AB7C600C14F99 /* mp1Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80313D371C1AB7C600C14F99 /* mp1Tests.swift */; };
 		80313D431C1AB7C600C14F99 /* mp1UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80313D421C1AB7C600C14F99 /* mp1UITests.swift */; };
 		DD02359E1D05161400F1574C /* ImageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD02359D1D05161400F1574C /* ImageProcessor.swift */; };
+		DD55F02F1D26DA7C00719719 /* LevelerUIImagePickerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD55F02E1D26DA7C00719719 /* LevelerUIImagePickerController.swift */; };
+		DD55F0311D26DBEF00719719 /* ImageProject.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD55F0301D26DBEF00719719 /* ImageProject.swift */; };
+		DD6EC97E1D26019A00830939 /* ProjectHistoryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD6EC97D1D26019A00830939 /* ProjectHistoryTableViewController.swift */; };
+		DD6EC9801D26062000830939 /* CoreDataTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD6EC97F1D26062000830939 /* CoreDataTableViewController.swift */; };
 		DD8636B71D07B57D008AFB26 /* CameraOverlayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD8636B51D07B57D008AFB26 /* CameraOverlayViewController.swift */; };
 		DD8636B81D07B57D008AFB26 /* CameraOverlayViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = DD8636B61D07B57D008AFB26 /* CameraOverlayViewController.xib */; };
 		DD8636BA1D07B5A2008AFB26 /* CameraOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD8636B91D07B5A2008AFB26 /* CameraOverlayView.swift */; };
@@ -60,6 +64,10 @@
 		80313D421C1AB7C600C14F99 /* mp1UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mp1UITests.swift; sourceTree = "<group>"; };
 		80313D441C1AB7C600C14F99 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DD02359D1D05161400F1574C /* ImageProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageProcessor.swift; sourceTree = "<group>"; };
+		DD55F02E1D26DA7C00719719 /* LevelerUIImagePickerController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LevelerUIImagePickerController.swift; sourceTree = "<group>"; };
+		DD55F0301D26DBEF00719719 /* ImageProject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageProject.swift; sourceTree = "<group>"; };
+		DD6EC97D1D26019A00830939 /* ProjectHistoryTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectHistoryTableViewController.swift; sourceTree = "<group>"; };
+		DD6EC97F1D26062000830939 /* CoreDataTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataTableViewController.swift; sourceTree = "<group>"; };
 		DD8636B51D07B57D008AFB26 /* CameraOverlayViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraOverlayViewController.swift; sourceTree = "<group>"; };
 		DD8636B61D07B57D008AFB26 /* CameraOverlayViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CameraOverlayViewController.xib; sourceTree = "<group>"; };
 		DD8636B91D07B5A2008AFB26 /* CameraOverlayView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraOverlayView.swift; sourceTree = "<group>"; };
@@ -121,11 +129,15 @@
 			children = (
 				DD8636B51D07B57D008AFB26 /* CameraOverlayViewController.swift */,
 				DD8636B61D07B57D008AFB26 /* CameraOverlayViewController.xib */,
-				80313D211C1AB7C600C14F99 /* InformationViewController.swift */,
-				DDFEA9771D0904E9005B94F0 /* LevelerView.swift */,
-				DD02359D1D05161400F1574C /* ImageProcessor.swift */,
 				DD8636B91D07B5A2008AFB26 /* CameraOverlayView.swift */,
+				80313D211C1AB7C600C14F99 /* InformationViewController.swift */,
+				DD55F02E1D26DA7C00719719 /* LevelerUIImagePickerController.swift */,
+				DDFEA9771D0904E9005B94F0 /* LevelerView.swift */,
+				DD55F0301D26DBEF00719719 /* ImageProject.swift */,
+				DD02359D1D05161400F1574C /* ImageProcessor.swift */,
+				DD6EC97F1D26062000830939 /* CoreDataTableViewController.swift */,
 				80313D231C1AB7C600C14F99 /* Main.storyboard */,
+				DD6EC97D1D26019A00830939 /* ProjectHistoryTableViewController.swift */,
 				8023BD181C35393200D52645 /* ResultsVC.swift */,
 				DDE0F3F81D1B22DA000B81EB /* CoreData */,
 				DDDF84001D03A62C003E0840 /* Supportinf files */,
@@ -309,11 +321,15 @@
 				8023BD191C35393200D52645 /* ResultsVC.swift in Sources */,
 				DD8636B71D07B57D008AFB26 /* CameraOverlayViewController.swift in Sources */,
 				DD8636BA1D07B5A2008AFB26 /* CameraOverlayView.swift in Sources */,
+				DD6EC97E1D26019A00830939 /* ProjectHistoryTableViewController.swift in Sources */,
 				DDE0F3F71D1B2256000B81EB /* ImageResult.swift in Sources */,
 				DDE0F3F31D1B2033000B81EB /* Model.xcdatamodeld in Sources */,
+				DD55F0311D26DBEF00719719 /* ImageProject.swift in Sources */,
 				DD02359E1D05161400F1574C /* ImageProcessor.swift in Sources */,
+				DD6EC9801D26062000830939 /* CoreDataTableViewController.swift in Sources */,
 				80313D281C1AB7C600C14F99 /* mp1.xcdatamodeld in Sources */,
 				80313D201C1AB7C600C14F99 /* AppDelegate.swift in Sources */,
+				DD55F02F1D26DA7C00719719 /* LevelerUIImagePickerController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

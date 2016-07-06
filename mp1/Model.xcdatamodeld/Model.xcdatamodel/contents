@@ -1,12 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10174" systemVersion="15F34" minimumToolsVersion="Xcode 7.0">
     <entity name="ImageResult" representedClassName=".ImageResult" syncable="YES">
-        <attribute name="edittedImageAddress" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
+        <attribute name="autoThreshold" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="edittedImageData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
+        <attribute name="heading" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="isThresholdAutoDecided" optional="YES" attributeType="Boolean" syncable="YES"/>
         <attribute name="lastSavedTime" optional="YES" attributeType="Date" syncable="YES"/>
-        <attribute name="originalImageAddress" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
+        <attribute name="latitude" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="leveldx" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="leveldy" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="longtitude" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="nonSkypoints" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="originalImageData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
+        <attribute name="skypoints" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="threshold" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
-        <element name="ImageResult" positionX="-3420" positionY="-3681" width="128" height="103"/>
+        <element name="ImageResult" positionX="-3420" positionY="-3681" width="128" height="255"/>
     </elements>
 </model>

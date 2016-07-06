@@ -17,15 +17,15 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
     
     @IBOutlet var Lat_label: UILabel!
     @IBOutlet var Long_label: UILabel!
-    
     @IBOutlet var theta_label: UILabel!
     @IBOutlet var phi_label: UILabel!
     
-    let locationManager = CLLocationManager()
-    let locationManagerDirection = CLLocationManager()
+    private let locationManager = CLLocationManager()
+    //private let locationManagerDirection = CLLocationManager()
     
-    var LatitudeGPS = NSString()
-    var LongitudeGPS = NSString()
+    private var LatitudeGPS = NSString()
+    private var LongitudeGPS = NSString()
+    private var imageProject = ImageProject()
     
     @IBOutlet var response_label: UILabel!
     
@@ -38,8 +38,6 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
     
     @IBOutlet var theta_slider: UISlider!
     @IBOutlet var phi_slider: UISlider!
-    
-    
     @IBOutlet var magLabel: UILabel!
     
     // To display changing Theta value on the app screen
@@ -72,8 +70,23 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
     private var picker = LevelerUIImagePickerController()
        // ProtraitUIImagePickerController()
     
+    private func updateGeoInfoToProject() {
+        imageProject.latitude = locationManager.location?.coordinate.latitude
+        imageProject.longtidude = locationManager.location?.coordinate.longitude
+        imageProject.heading = locationManager.heading?.trueHeading
+        if let motionData = motionManager.deviceMotion {
+            var xoffset = CGFloat(motionData.attitude.roll)
+            let yoffset = CGFloat(motionData.attitude.pitch) * LevelerParameters.Sensitivity
+            xoffset = min(abs(xoffset), 3-abs(xoffset)) * xoffset / abs(xoffset) * LevelerParameters.Sensitivity
+            imageProject.leveler = LevelInformation(x: xoffset, y: yoffset)
+        } else {
+            imageProject.leveler = nil
+        }
+    }
+    
     // This function is called when the user clicks on the button "Capture Image"
     @objc func changeToConfirmScreenOverlay() {
+        updateGeoInfoToProject()
         if let cameraOverlayView = picker.cameraOverlayView as? CameraOverlayView {
             let pickerFrame = picker.view.frame
             let shortSide = pickerFrame.width < pickerFrame.height ?  pickerFrame.width : pickerFrame.height
@@ -102,9 +115,6 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
             //picker.mediaTypes = .kUTTypeImage
         }
     }
-    
-    
-    
     
     @IBAction func clickedOnCaptureImage() {
         
@@ -136,8 +146,10 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
                         cameraOverlayView.frame = self.picker.view.frame
                         cameraOverlayView.screenMode = .photoCaptureScreen
                         self.picker.cameraOverlayView = cameraOverlayView
+                        self.picker.locationManager = self.locationManager
+                        self.picker.motionManager = self.motionManager
                         self.picker.addLevelerViewToOverlayView()
-                        
+            
                         while (currentDevice.generatesDeviceOrientationNotifications) {
                             currentDevice.endGeneratingDeviceOrientationNotifications()
                         }
@@ -161,33 +173,15 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
     }
     
     private var displayImage : UIImage? {
-        didSet {
-            myImageView.image = displayImage
+        get {
+            return myImageView.image
+        }
+        
+        set {
+            myImageView.image = newValue
+            imageProject.originalImage = newValue
         }
     }
-    
-    private func createSquareImage(fromImage originalImage: UIImage) -> UIImage {
-        let shortSide = originalImage.size.width < originalImage.size.height ? originalImage.size.width : originalImage.size.height
-        let longSide = originalImage.size.width >= originalImage.size.height ? originalImage.size.width : originalImage.size.height
-        let clipped = (longSide - shortSide) / 2
-        let rect = CGRectMake(0, clipped, shortSide, shortSide)
-        
-        UIGraphicsBeginImageContextWithOptions(rect.size, false, originalImage.scale)
-        originalImage.drawAtPoint(CGPointMake(-rect.origin.x, -rect.origin.y))
-        let croppedImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        
-        return croppedImage
-    }
-    
-    private func normalizeImage(image: UIImage) -> UIImage {
-        UIGraphicsBeginImageContextWithOptions(image.size, false, image.scale)
-        image.drawInRect(CGRect(origin: CGPoint(x:0, y:0), size: image.size))
-        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return normalizedImage
-    }
-    
     
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
         
@@ -196,12 +190,12 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
             let status = AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo)
             if status == .Authorized {
                 if let originalImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
-                    displayImage = createSquareImage(fromImage: originalImage)
+                    displayImage = UIImage.createSquareImage(fromImage: originalImage)
                 }
             }
         case .PhotoLibrary:
             if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
-                displayImage = normalizeImage(image)
+                displayImage = UIImage.normalizeImage(image)
             }
             
         default:
@@ -268,29 +262,40 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         startToCheckAttitude()
+        updateLocation()
+        //startToCheckAttitude()
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        print("In viewDidLoad")
-        updateLocation()
+        //print("In viewDidLoad")
+        
         askForCamperaPermission()
         setCameraPicker()
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(printOrientationChange), name: UIDeviceOrientationDidChangeNotification, object: nil)
-        startToCheckAttitude()
+        
         
     }
     
-    private func StopCheckingAttitude()
+    private func stopCheckingAttitude()
     {
         motionManager.stopDeviceMotionUpdates()
+        
+    }
+    private func stopUpdatingLocation()
+    {
+        locationManager.stopUpdatingHeading()
+        locationManager.stopUpdatingLocation()
     }
     
     override func viewDidDisappear(animated: Bool) {
+        
+        print("view disapear, disable attitude and location")
         super.viewDidDisappear(animated)
-        StopCheckingAttitude()
+        stopCheckingAttitude()
+        stopUpdatingLocation()
     }
     
 
@@ -319,8 +324,7 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
         if (segue.identifier == "segueToResultsVC") {
             
             let svc = segue.destinationViewController as! ResultsVC;
-            svc.originalImage = myImageView.image
-            
+            svc.imageProject = imageProject
         }
     }
     
@@ -403,85 +407,36 @@ extension NSMutableData {
     }
 }
 
-class LevelerUIImagePickerController : UIImagePickerController, CLLocationManagerDelegate {
+extension UIImage {
     
-    static var viewNumber = 0
-    override func shouldAutorotate() -> Bool {
-        return false
-    }
-    
-    override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
-        return UIInterfaceOrientationMask.Portrait
-    }
-    
-    private let motionManager = CMMotionManager()
-    private var levelerView : LevelerView?
-    
-    let locationManager = CLLocationManager()
-    let locationManagerDirection = CLLocationManager()
-    
-
-    private func startToCheckAttitude() {
-        let queue = NSOperationQueue()
-        if motionManager.deviceMotionAvailable {
-            motionManager.deviceMotionUpdateInterval = LevelerParameters.UpdateInterval
-            motionManager.startDeviceMotionUpdatesToQueue(queue)
-            {
-                [weak weakSelf = self](data, error) in
-                
-                guard let motionData = data else {return }
-                var xoffset = CGFloat(motionData.attitude.roll)
-                let yoffset = CGFloat(motionData.attitude.pitch) * LevelerParameters.Sensitivity
-                
-                xoffset = min(abs(xoffset), 3-abs(xoffset)) * xoffset / abs(xoffset) * LevelerParameters.Sensitivity
-                
-                NSOperationQueue.mainQueue().addOperationWithBlock {
-                    weakSelf!.levelerView!.offset = CGPoint(x: xoffset, y:yoffset)
-                }
-            }
-        }
-    }
-    
-    func addLevelerViewToOverlayView() {
-        if self.cameraOverlayView != nil {
-            for subview in (cameraOverlayView?.subviews)! {
-                levelerView = subview as? LevelerView
-                if levelerView != nil {
-                    levelerView?.shouldDrawBackground = true
-                    break
-                }
-            }
-        }
-        startToCheckAttitude()
-        updateLocation()
-    }
-    override func viewDidDisappear(animated: Bool) {
-        super.viewDidDisappear(animated)
-        motionManager.stopDeviceMotionUpdates()
-    }
-    
-    func updateLocation() {
-        self.locationManager.delegate = self
-        self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        self.locationManager.requestWhenInUseAuthorization()
-        self.locationManager.startUpdatingHeading()
-    }
-    
-    func locationManager(manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
-        let h2 = newHeading.trueHeading // will be -1 if we have no location info
+    class func createSquareImage(fromImage originalImage: UIImage) -> UIImage {
+        let shortSide = originalImage.size.width < originalImage.size.height ? originalImage.size.width : originalImage.size.height
+        let longSide = originalImage.size.width >= originalImage.size.height ? originalImage.size.width : originalImage.size.height
+        let clipped = (longSide - shortSide) / 2
+        let rect = CGRectMake(0, clipped, shortSide, shortSide)
         
-        NSOperationQueue.mainQueue().addOperationWithBlock {
-            
-            [weak weakSelf = self] in
-            if h2 > 0 {
-                if weakSelf?.levelerView != nil {
-                    weakSelf?.levelerView!.direction = CGFloat(h2)
-                }
-            }
-        }
+        UIGraphicsBeginImageContextWithOptions(rect.size, false, originalImage.scale)
+        originalImage.drawAtPoint(CGPointMake(-rect.origin.x, -rect.origin.y))
+        let croppedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return croppedImage
     }
+    
+    class func normalizeImage(image: UIImage) -> UIImage {
+        UIGraphicsBeginImageContextWithOptions(image.size, false, image.scale)
+        image.drawInRect(CGRect(origin: CGPoint(x:0, y:0), size: image.size))
+        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return normalizedImage
+    }
+}
+
+extension CMMotionManager {
     
 }
+
+
 
 
 

@@ -11,37 +11,41 @@ import UIKit
 
 class ImageProcessor
 {
-    
-    var inputImage : UIImage? {
+    var inputProject : ImageProject? {
         didSet {
-            if (inputImage != nil) {
+            if inputProject?.originalImage != nil {
                 getNewPixelsCount(averageRGB)
-                //threshold = clusterRidlerAlgorithm(Constant.clusterRidlerInitValue)
-                //processImage(averageRGB)
+            }
+            
+            if inputProject?.edittedImage == nil {
+                processWithDefaultThershold()
             }
         }
     }
     
-    var threshold  = 128.0 {
+    /*
+    var inputImage : UIImage? {
         didSet {
             if (inputImage != nil) {
+                getNewPixelsCount(averageRGB)            }
+        }
+    }
+    */
+    
+    var threshold : Double?  {
+        get {
+            return inputProject?.threshold
+        }
+        set {
+            if inputProject != nil {
+                inputProject?.threshold = newValue
+                inputProject?.isThresholdAutoDecided = false
                 processImage(averageRGB)
             }
         }
     }
     
-    var resultImage : UIImage? {
-        get {
-            return edittedImage
-        }
-    }
-    
-    var overlayImage : UIImage? {
-        get {
-            return combinedImage
-        }
-    }
-    
+    /*
     var skyViewFactor : Double? {
         if (nonSkyPoints + skyPoints) == 0 {
             return nil
@@ -49,19 +53,43 @@ class ImageProcessor
             return (skyPoints / (skyPoints + nonSkyPoints))
         }
     }
+     */
     
     func processWithDefaultThershold() {
-        threshold = clusterRidlerAlgorithm(Constant.clusterRidlerInitValue)
+        if inputProject?.autoThreshold == nil {
+            inputProject?.autoThreshold = clusterRidlerAlgorithm(Constant.clusterRidlerInitValue)
+            
+        }
+        inputProject?.threshold = inputProject?.autoThreshold
+        inputProject?.isThresholdAutoDecided = true
+        processImage(averageRGB)
+        
     }
     
     private struct Constant {
         static var clusterRidlerInitValue = 128.0
     }
     
-    private var edittedImage : UIImage?
-    private var combinedImage : UIImage?
-    private var skyPoints = 0.0
-    private var nonSkyPoints = 0.0
+    //private var edittedImage : UIImage?
+    //private var combinedImage : UIImage?
+    private var skyPoints : Double? {
+        get {
+            return inputProject?.skyPoints
+        }
+        set {
+            inputProject?.skyPoints = newValue
+        }
+    }
+    private var nonSkyPoints : Double? {
+        get {
+            return inputProject?.nonSkyPoints
+        }
+        set {
+            inputProject?.nonSkyPoints = newValue
+        }
+    }
+    
+    
     private var filteredPixelsCount : [Double]?
     private var colorThreshold = 128.0
     //typealias selectedMethod = averageRGB
@@ -101,8 +129,8 @@ class ImageProcessor
     
     private func getNewPixelsCount(colorFilter : (Double, Double, Double) -> Double) {
         
-        if inputImage != nil {
-            let inputCGImage     = inputImage!.CGImage
+        if inputProject != nil {
+            let inputCGImage     = inputProject!.originalImage!.CGImage
             let colorSpace       = CGColorSpaceCreateDeviceRGB()
             let width            = CGImageGetWidth(inputCGImage)
             let height           = CGImageGetHeight(inputCGImage)
@@ -148,15 +176,15 @@ class ImageProcessor
     
     private func initAllStatus() {
         
-        edittedImage = nil
-        combinedImage = nil
+        //edittedImage = nil
+        //combinedImage = nil
         skyPoints = 0.0
         nonSkyPoints = 0.0
     }
     
     private func processOriginalImage(colorFilter: (Double, Double, Double) -> Double) {
         
-        let inputCGImage     = inputImage!.CGImage
+        let inputCGImage     = inputProject!.originalImage!.CGImage
         let colorSpace       = CGColorSpaceCreateDeviceRGB()
         let width            = CGImageGetWidth(inputCGImage)
         let height           = CGImageGetHeight(inputCGImage)
@@ -180,10 +208,10 @@ class ImageProcessor
                 
                 if brightness > threshold {
                     currentPixel.memory = whiteColor
-                    skyPoints = skyPoints + 1
+                    skyPoints = skyPoints! + 1
                 } else {
                     currentPixel.memory = blackColor
-                    nonSkyPoints = nonSkyPoints + 1
+                    nonSkyPoints = nonSkyPoints! + 1
                 }
                 
                 currentPixel = currentPixel + 1
@@ -191,19 +219,20 @@ class ImageProcessor
         }
         
         let outputCGImage = CGBitmapContextCreateImage(context)
-        edittedImage = UIImage(CGImage: outputCGImage!, scale: inputImage!.scale, orientation: inputImage!.imageOrientation)
+        inputProject?.edittedImage = UIImage(CGImage: outputCGImage!, scale: inputProject!.originalImage!.scale, orientation: inputProject!.originalImage!.imageOrientation)
     }
     
     private func processImage(colorFilter: (Double, Double, Double) -> Double) {
         
         initAllStatus()
-        if inputImage != nil {
+        if inputProject != nil {
             
             processOriginalImage(colorFilter)
             //mergeTwoImage()
         }
     }
     
+    /*
     private func mergeTwoImage() {
         let height = CGImageGetHeight(inputImage!.CGImage)
         let width = CGImageGetWidth(inputImage!.CGImage)
@@ -225,10 +254,10 @@ class ImageProcessor
         let rotatedImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
-        combinedImage = UIImage(CGImage: rotatedImage.CGImage!, scale: inputImage!.scale, orientation: inputImage!.imageOrientation)
+        //combinedImage = UIImage(CGImage: rotatedImage.CGImage!, scale: inputImage!.scale, orientation: inputImage!.imageOrientation)
         
     }
-    
+    */
     private func getRedComponent(color: UInt32) -> UInt8 {
         let color = UInt8(color & 0xFF)
         return color
