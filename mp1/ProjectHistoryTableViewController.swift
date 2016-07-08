@@ -94,10 +94,11 @@ class ProjectHistoryTableViewController: CoreDataTableViewController, UISearchBa
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let imageResult = fetchedResultsController?.objectAtIndexPath(indexPath) as? ImageResult
+        var imageProject = ImageProject()
         imageResult?.managedObjectContext?.performBlockAndWait {
-            let imageProject = imageResult?.createProject()
-            self.performSegueWithIdentifier("ShowResult", sender: imageProject)
+            imageProject = (imageResult?.createProject())!
         }
+        performSegueWithIdentifier("ShowResult", sender: imageProject)
     }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {

@@ -21,6 +21,8 @@
 		DD55F0311D26DBEF00719719 /* ImageProject.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD55F0301D26DBEF00719719 /* ImageProject.swift */; };
 		DD6EC97E1D26019A00830939 /* ProjectHistoryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD6EC97D1D26019A00830939 /* ProjectHistoryTableViewController.swift */; };
 		DD6EC9801D26062000830939 /* CoreDataTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD6EC97F1D26062000830939 /* CoreDataTableViewController.swift */; };
+		DD736C691D2DF9AF0009741C /* CaptureOrLibraryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD736C681D2DF9AF0009741C /* CaptureOrLibraryViewController.swift */; };
+		DD736C6B1D2E0A400009741C /* parametersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD736C6A1D2E0A400009741C /* parametersViewController.swift */; };
 		DD8636B71D07B57D008AFB26 /* CameraOverlayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD8636B51D07B57D008AFB26 /* CameraOverlayViewController.swift */; };
 		DD8636B81D07B57D008AFB26 /* CameraOverlayViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = DD8636B61D07B57D008AFB26 /* CameraOverlayViewController.xib */; };
 		DD8636BA1D07B5A2008AFB26 /* CameraOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD8636B91D07B5A2008AFB26 /* CameraOverlayView.swift */; };
@@ -68,6 +70,8 @@
 		DD55F0301D26DBEF00719719 /* ImageProject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageProject.swift; sourceTree = "<group>"; };
 		DD6EC97D1D26019A00830939 /* ProjectHistoryTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectHistoryTableViewController.swift; sourceTree = "<group>"; };
 		DD6EC97F1D26062000830939 /* CoreDataTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataTableViewController.swift; sourceTree = "<group>"; };
+		DD736C681D2DF9AF0009741C /* CaptureOrLibraryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptureOrLibraryViewController.swift; sourceTree = "<group>"; };
+		DD736C6A1D2E0A400009741C /* parametersViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = parametersViewController.swift; sourceTree = "<group>"; };
 		DD8636B51D07B57D008AFB26 /* CameraOverlayViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraOverlayViewController.swift; sourceTree = "<group>"; };
 		DD8636B61D07B57D008AFB26 /* CameraOverlayViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CameraOverlayViewController.xib; sourceTree = "<group>"; };
 		DD8636B91D07B5A2008AFB26 /* CameraOverlayView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraOverlayView.swift; sourceTree = "<group>"; };
@@ -127,6 +131,8 @@
 		80313D1E1C1AB7C600C14F99 /* mp1 */ = {
 			isa = PBXGroup;
 			children = (
+				DD736C681D2DF9AF0009741C /* CaptureOrLibraryViewController.swift */,
+				DD736C6A1D2E0A400009741C /* parametersViewController.swift */,
 				DD8636B51D07B57D008AFB26 /* CameraOverlayViewController.swift */,
 				DD8636B61D07B57D008AFB26 /* CameraOverlayViewController.xib */,
 				DD8636B91D07B5A2008AFB26 /* CameraOverlayView.swift */,
@@ -322,7 +328,9 @@
 				DD8636B71D07B57D008AFB26 /* CameraOverlayViewController.swift in Sources */,
 				DD8636BA1D07B5A2008AFB26 /* CameraOverlayView.swift in Sources */,
 				DD6EC97E1D26019A00830939 /* ProjectHistoryTableViewController.swift in Sources */,
+				DD736C6B1D2E0A400009741C /* parametersViewController.swift in Sources */,
 				DDE0F3F71D1B2256000B81EB /* ImageResult.swift in Sources */,
+				DD736C691D2DF9AF0009741C /* CaptureOrLibraryViewController.swift in Sources */,
 				DDE0F3F31D1B2033000B81EB /* Model.xcdatamodeld in Sources */,
 				DD55F0311D26DBEF00719719 /* ImageProject.swift in Sources */,
 				DD02359E1D05161400F1574C /* ImageProcessor.swift in Sources */,

@@ -61,8 +61,7 @@ class LevelerUIImagePickerController : UIImagePickerController, CLLocationManage
                 }
             }
         }
-        startToCheckAttitude()
-        updateLocation()
+        startUpdateLeveler()
     }
     override func viewDidDisappear(animated: Bool) {
         super.viewDidDisappear(animated)
@@ -70,13 +69,23 @@ class LevelerUIImagePickerController : UIImagePickerController, CLLocationManage
         locationManager?.stopUpdatingHeading()
     }
     
-    func updateLocation() {
+    private func updateLocation() {
         if locationManager != nil {
             self.locationManager!.delegate = self
             self.locationManager!.desiredAccuracy = kCLLocationAccuracyBest
             self.locationManager!.requestWhenInUseAuthorization()
             self.locationManager!.startUpdatingHeading()
         }
+    }
+    
+    func startUpdateLeveler() {
+        startToCheckAttitude()
+        updateLocation()
+    }
+    
+    func stopUpdateLeveler() {
+        motionManager?.stopGyroUpdates()
+        locationManager?.stopUpdatingHeading()
     }
     
     func locationManager(manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {

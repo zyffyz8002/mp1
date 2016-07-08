@@ -378,63 +378,8 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
     
 }
 
-struct PhotoScreenBounds {
-    static let captureScreenUpperBound : CGFloat = 40
-    static let captureScreenLowerBound : CGFloat = 100
-    static let confirmScreenLowerBound : CGFloat = 70
-    static let confirmScreenUpperBound : CGFloat = 70
-}
 
-struct LevelerParameters {
-    static let Radius: CGFloat = 5
-    static let Sensitivity : CGFloat = 35 / 1.5
-    static let UpdateInterval : Double = 0.05
-    static let MaxRange : CGFloat = 70
-    
-}
 
-extension NSMutableData {
-    
-    /// Append string to NSMutableData
-    ///
-    /// Rather than littering my code with calls to `dataUsingEncoding` to convert strings to NSData, and then add that data to the NSMutableData, this wraps it in a nice convenient little extension to NSMutableData. This converts using UTF-8.
-    ///
-    /// - parameter string:       The string to be added to the `NSMutableData`.
-    
-    func appendString(string: String) {
-        let data = string.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true)
-        appendData(data!)
-    }
-}
-
-extension UIImage {
-    
-    class func createSquareImage(fromImage originalImage: UIImage) -> UIImage {
-        let shortSide = originalImage.size.width < originalImage.size.height ? originalImage.size.width : originalImage.size.height
-        let longSide = originalImage.size.width >= originalImage.size.height ? originalImage.size.width : originalImage.size.height
-        let clipped = (longSide - shortSide) / 2
-        let rect = CGRectMake(0, clipped, shortSide, shortSide)
-        
-        UIGraphicsBeginImageContextWithOptions(rect.size, false, originalImage.scale)
-        originalImage.drawAtPoint(CGPointMake(-rect.origin.x, -rect.origin.y))
-        let croppedImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        
-        return croppedImage
-    }
-    
-    class func normalizeImage(image: UIImage) -> UIImage {
-        UIGraphicsBeginImageContextWithOptions(image.size, false, image.scale)
-        image.drawInRect(CGRect(origin: CGPoint(x:0, y:0), size: image.size))
-        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return normalizedImage
-    }
-}
-
-extension CMMotionManager {
-    
-}
 
 
 
