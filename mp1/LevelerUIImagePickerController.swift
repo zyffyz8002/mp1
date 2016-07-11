@@ -65,8 +65,7 @@ class LevelerUIImagePickerController : UIImagePickerController, CLLocationManage
     }
     override func viewDidDisappear(animated: Bool) {
         super.viewDidDisappear(animated)
-        motionManager?.stopDeviceMotionUpdates()
-        locationManager?.stopUpdatingHeading()
+        stopUpdateLeveler()
     }
     
     private func updateLocation() {
@@ -86,6 +85,7 @@ class LevelerUIImagePickerController : UIImagePickerController, CLLocationManage
     func stopUpdateLeveler() {
         motionManager?.stopGyroUpdates()
         locationManager?.stopUpdatingHeading()
+        motionManager?.stopDeviceMotionUpdates()
     }
     
     func locationManager(manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {

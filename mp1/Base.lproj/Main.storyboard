@@ -325,8 +325,8 @@
                                                         </connections>
                                                     </switch>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dha-mH-1PE">
-                                                        <rect key="frame" x="424" y="0.0" width="55" height="31"/>
-                                                        <state key="normal" title="Process"/>
+                                                        <rect key="frame" x="440" y="0.0" width="39" height="31"/>
+                                                        <state key="normal" title="Reset"/>
                                                         <connections>
                                                             <action selector="processImage:" destination="sUx-Up-bdE" eventType="touchUpInside" id="Gn2-3t-YFj"/>
                                                         </connections>

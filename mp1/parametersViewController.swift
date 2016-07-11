@@ -8,7 +8,7 @@
 
 import UIKit
 
-class parametersViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate
+class parametersViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate
 {
 
     struct storyboardIdentifier  {
@@ -32,6 +32,11 @@ class parametersViewController: UIViewController, UIImagePickerControllerDelegat
     override func viewDidLoad() {
         super.viewDidLoad()
         picker.delegate = self
+        longtitudeText.delegate = self
+        headingText.delegate = self
+        latitudeText.delegate = self
+        levelerDxText.delegate = self
+        levelerDyText.delegate = self
         // Do any additional setup after loading the view.
     }
 
@@ -62,7 +67,10 @@ class parametersViewController: UIViewController, UIImagePickerControllerDelegat
         }
     }
     
-
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
     
     // MARK: - Navigation
 

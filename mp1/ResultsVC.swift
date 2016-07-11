@@ -9,6 +9,7 @@
 import UIKit
 import CoreData
 import MessageUI
+import QuartzCore
 
 class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControllerDelegate, UINavigationControllerDelegate {
     
@@ -28,15 +29,43 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
         originalImageView.alpha = originalImageAlpha()
     }
     
+    
+    let imageProcessQueue = NSOperationQueue()
+    
+    
+    
     @IBAction func sliderChanged(sender: UISlider) {
+    
         threshold.text = "\(Int(sender.value))"
         let sliderValue = Double(sender.value)
         spinner.startAnimating()
         originalImageView.image = nil
         resultImageView.image = nil
-        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) {
+        
+        imageProcessQueue.cancelAllOperations()
+        let imageBlock = NSBlockOperation()
+
+        imageBlock.addExecutionBlock {
             [weak self] in
             if sliderValue == Double(sender.value) {
+                print("start: \(sender.value)");
+                if !imageBlock.cancelled {
+                    self?.imageProcessor.threshold = Double(sender.value)
+                    dispatch_sync(dispatch_get_main_queue()) {
+                        if sliderValue == Double(sender.value) {
+                            self?.updateImage()
+                        }
+                    }
+                }
+            }
+        }
+        imageProcessQueue.addOperation(imageBlock)
+        /*
+        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0)) {
+            [weak self] in
+            if sliderValue == Double(sender.value) {
+                print("start: \(sender.value)");
+                
                 self?.imageProcessor.threshold = Double(sender.value)
                 dispatch_sync(dispatch_get_main_queue()) {
                     if sliderValue == Double(sender.value) {
@@ -46,6 +75,7 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
             }
             
         }
+         */
     }
     
     private func saveProjectToCoreData(to projectContent : ImageResult) {
@@ -235,6 +265,7 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
             setParameters()
             passImage()
         }
+        imageProcessQueue.maxConcurrentOperationCount = 1
         print("result vc view did load")
     }
     

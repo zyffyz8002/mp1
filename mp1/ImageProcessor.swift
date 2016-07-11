@@ -8,11 +8,17 @@
 
 import Foundation
 import UIKit
+import QuartzCore
 
 class ImageProcessor
 {
     var inputProject : ImageProject? {
         didSet {
+            //threshold = i
+            skyPoints = inputProject?.skyPoints
+            nonSkyPoints = inputProject?.nonSkyPoints
+            
+            
             if inputProject?.originalImage != nil {
                 getNewPixelsCount(averageRGB)
             }
@@ -32,7 +38,8 @@ class ImageProcessor
     }
     */
     
-    var threshold : Double?  {
+    var threshold : Double? {
+        
         get {
             return inputProject?.threshold
         }
@@ -43,6 +50,7 @@ class ImageProcessor
                 processImage(averageRGB)
             }
         }
+
     }
     
     /*
@@ -72,15 +80,18 @@ class ImageProcessor
     
     //private var edittedImage : UIImage?
     //private var combinedImage : UIImage?
-    private var skyPoints : Double? {
+    private var skyPoints : Double?
+    /*{
         get {
             return inputProject?.skyPoints
         }
         set {
             inputProject?.skyPoints = newValue
         }
-    }
-    private var nonSkyPoints : Double? {
+    }*/
+    private var nonSkyPoints : Double?
+    /*
+    {
         get {
             return inputProject?.nonSkyPoints
         }
@@ -88,6 +99,7 @@ class ImageProcessor
             inputProject?.nonSkyPoints = newValue
         }
     }
+     */
     
     
     private var filteredPixelsCount : [Double]?
@@ -183,6 +195,9 @@ class ImageProcessor
     }
     
     private func processOriginalImage(colorFilter: (Double, Double, Double) -> Double) {
+       // var start = CACurrentMediaTime()
+
+        
         
         let inputCGImage     = inputProject!.originalImage!.CGImage
         let colorSpace       = CGColorSpaceCreateDeviceRGB()
@@ -201,12 +216,18 @@ class ImageProcessor
         let blackColor = getColorFromRgba(red: 0, green: 0, blue: 0, alpha: 255)
         let whiteColor = getColorFromRgba(red: 255, green: 255, blue: 255, alpha: 255)
         
-        for  _ in 0..<Int(height) {
-            for  _ in 0..<Int(width) {
-                let pixel = currentPixel.memory
-                let brightness = colorFilter(Double(getRedComponent(pixel)) , Double(getBlueComponent(pixel)) , Double(getGreenComponent(pixel)) )
+        //print("\(threshold!): loop: \(CACurrentMediaTime() - start)" )
+        //start = CACurrentMediaTime()
+        
+        let localThreshold = threshold
+        
+        for  h in 0..<Int(height) {
+            for  w in 0..<Int(width) {
+                //let pixel = currentPixel.memory
+                //let brightness = colorFilter(Double(getRedComponent(pixel)) , Double(getBlueComponent(pixel)) , Double(getGreenComponent(pixel)) )
+                let brightness = filteredPixelsCount![h * width + w]
                 
-                if brightness > threshold {
+                if brightness > localThreshold {
                     currentPixel.memory = whiteColor
                     skyPoints = skyPoints! + 1
                 } else {
@@ -218,8 +239,18 @@ class ImageProcessor
             }
         }
         
+        inputProject?.skyPoints = skyPoints
+        inputProject?.nonSkyPoints = nonSkyPoints
+        
+        //print("\(threshold!): loop \(CACurrentMediaTime() - start)" )
+        //start = CACurrentMediaTime()
+        
         let outputCGImage = CGBitmapContextCreateImage(context)
         inputProject?.edittedImage = UIImage(CGImage: outputCGImage!, scale: inputProject!.originalImage!.scale, orientation: inputProject!.originalImage!.imageOrientation)
+        
+        //let end = CACurrentMediaTime()
+        //print("\(threshold!): ending: \(end - start)" )
+        
     }
     
     private func processImage(colorFilter: (Double, Double, Double) -> Double) {
