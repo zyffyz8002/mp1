@@ -60,39 +60,76 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
             }
         }
         imageProcessQueue.addOperation(imageBlock)
+    }
+    
+    private func presentAlert(title: String, message: String) {
+        let Alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.Alert)
+        Alert.addAction(UIAlertAction(title: "OK", style: .Default, handler:  nil))
+        self.navigationController!.presentViewController(Alert, animated: true, completion: nil)
+    }
+    
+    private func presentSavingSuccessAlert() {
         /*
-        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0)) {
-            [weak self] in
-            if sliderValue == Double(sender.value) {
-                print("start: \(sender.value)");
-                
-                self?.imageProcessor.threshold = Double(sender.value)
-                dispatch_sync(dispatch_get_main_queue()) {
-                    if sliderValue == Double(sender.value) {
-                        self?.updateImage()
-                    }
-                }
-            }
-            
-        }
-         */
+        let sucessAlert = UIAlertController(title: "Saving", message: "Saving success!", preferredStyle: UIAlertControllerStyle.Alert)
+        sucessAlert.addAction(UIAlertAction(title: "OK", style: .Default, handler:  nil))
+        self.navigationController!.presentViewController(sucessAlert, animated: true, completion: nil)
+        //self.presentViewController(sucessAlert, animated: true, completion: nil)
+        */
+        presentAlert("Saving success!", message: "Check your saved photos in SVF album")
     }
     
-    private func saveProjectToCoreData(to projectContent : ImageResult) {
+    private func presentSavingFailAlert() {
+        /*
+        let failAlert = UIAlertController(title: "Saving", message: "Saving fail!", preferredStyle: UIAlertControllerStyle.Alert)
+        failAlert.addAction(UIAlertAction(title: "OK", style: .Default, handler:  nil))
+        self.presentViewController(failAlert, animated: true, completion: nil)
+        */
+        presentAlert("Saving failed!", message: "Check your photo library privacy setting and try again!")
+        
+    }
+    
+    private func saveProjectToCoreData(to projectContent : ImageResult) -> Bool {
+        var success = true
         projectContent.managedObjectContext?.performBlockAndWait {
-            if projectContent.saveProject(withProject: self.imageProject!) {
-                let sucessAlert = UIAlertController(title: "Saving", message: "Saving sucess!", preferredStyle: UIAlertControllerStyle.Alert)
-                sucessAlert.addAction(UIAlertAction(title: "OK", style: .Default, handler:  nil))
-                self.presentViewController(sucessAlert, animated: true, completion: nil)
-            } else {
-                let failAlert = UIAlertController(title: "Saving", message: "Saving fail!", preferredStyle: UIAlertControllerStyle.Alert)
-                failAlert.addAction(UIAlertAction(title: "OK", style: .Default, handler:  nil))
-                self.presentViewController(failAlert, animated: true, completion: nil)
+            if !projectContent.saveProject(withProject: self.imageProject!) {
+                //self.presentSavingSuccessAlert()
+                success = false
             }
+        }
+        return success
+    }
+    
+    private func savePhotoToAlbum() {
+        var success = true
+        if !customPhotoAlbumManager.savePhoto(withPhoto: imageProject!.originalImage!) {
+            success = false
+        }
+        if !customPhotoAlbumManager.savePhoto(withPhoto: imageProject!.edittedImage!) {
+            success = false
+        }
+        
+        if success {
+            //presentSavingSuccessAlert()
+            presentAlert("Saving success!", message: "Check your saved photos in SVF album")
+        } else {
+            //presentSavingFailAlert()
+            presentAlert("Saving failed!", message: "Check your photo library privacy setting and try again!")
         }
     }
     
-    private func saveProject()
+    
+    private func saveProject(to projectContent : ImageResult ) {
+        if saveProjectToCoreData(to: projectContent) {
+            //presentSavingSuccessAlert()
+            presentAlert("Saving success!", message: "Your project is saved.")
+        } else {
+            //presentSavingFailAlert()
+            presentAlert("Saving failed!", message: "Your project is not saved.")
+        }
+        //savePhotoToAlbum()
+    }
+    
+    private func checkDuplicateAndSaveProject()
     {
         var projectContent : ImageResult?
         
@@ -103,7 +140,7 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
         
         if (projectContent != nil) {
             let alert = UIAlertController(title: "Repeated Project", message: "There is already a project named \"\(self.projectTitle.text!)\". Do you want to override it?", preferredStyle: UIAlertControllerStyle.Alert)
-            alert.addAction( UIAlertAction(title: "OK",style: .Default, handler: { action in self.saveProjectToCoreData(to: projectContent!)}) )
+            alert.addAction( UIAlertAction(title: "OK",style: .Default, handler: { action in self.saveProject(to: projectContent!)}) )
             alert.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: nil))
             presentViewController(alert, animated: true, completion: nil)
         } else {
@@ -111,9 +148,8 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
                 [unowned self] in
                 projectContent = ImageResult.createProject(withTitle: self.projectTitle.text!, inManagedObjectContext: self.managedObjectContext!)!
             }
-            saveProjectToCoreData(to: projectContent!)
+            saveProject(to: projectContent!)
         }
-        
     }
     
     private func getStringFromOptional(string: String?) -> String {
@@ -188,14 +224,21 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
             message: "Choose the way you want to save this project" ,
             preferredStyle:  .ActionSheet
         )
+        
+        alert.addAction(
+            UIAlertAction(title:"Save images to library", style: UIAlertActionStyle.Default, handler: {(UIAlertAction) in self.savePhotoToAlbum()})
+        )
+        
         alert.addAction(
             UIAlertAction(title: "Save To Phone", style: UIAlertActionStyle.Default, handler:{ [weak self] (UIAlertAction) in
-                self?.saveProject()
+                self?.checkDuplicateAndSaveProject()
                 } )
         )
         alert.addAction(
             UIAlertAction(title: "Email", style: .Default, handler: { [weak self] (UIAlertAction) in self?.sendProjectViaEmail() } )
         )
+        
+        
         alert.addAction(
             UIAlertAction(title: "Cancel", style: .Cancel , handler: nil )
         )
@@ -254,7 +297,7 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
         }
     }
     
-    
+    private let customPhotoAlbumManager = CustomPhotoAlbumManager()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -266,6 +309,7 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
             passImage()
         }
         imageProcessQueue.maxConcurrentOperationCount = 1
+        customPhotoAlbumManager.requestForPhotoAlbumAutherization()
         print("result vc view did load")
     }
     

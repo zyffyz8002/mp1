@@ -26,6 +26,7 @@
 		DD8636B71D07B57D008AFB26 /* CameraOverlayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD8636B51D07B57D008AFB26 /* CameraOverlayViewController.swift */; };
 		DD8636B81D07B57D008AFB26 /* CameraOverlayViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = DD8636B61D07B57D008AFB26 /* CameraOverlayViewController.xib */; };
 		DD8636BA1D07B5A2008AFB26 /* CameraOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD8636B91D07B5A2008AFB26 /* CameraOverlayView.swift */; };
+		DDD971BC1D356D2200312A31 /* CustomPhotoAlbumManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD971BB1D356D2200312A31 /* CustomPhotoAlbumManager.swift */; };
 		DDE0F3F31D1B2033000B81EB /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = DDE0F3F11D1B2033000B81EB /* Model.xcdatamodeld */; };
 		DDE0F3F61D1B2256000B81EB /* ImageResult+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDE0F3F41D1B2256000B81EB /* ImageResult+CoreDataProperties.swift */; };
 		DDE0F3F71D1B2256000B81EB /* ImageResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDE0F3F51D1B2256000B81EB /* ImageResult.swift */; };
@@ -75,6 +76,7 @@
 		DD8636B51D07B57D008AFB26 /* CameraOverlayViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraOverlayViewController.swift; sourceTree = "<group>"; };
 		DD8636B61D07B57D008AFB26 /* CameraOverlayViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CameraOverlayViewController.xib; sourceTree = "<group>"; };
 		DD8636B91D07B5A2008AFB26 /* CameraOverlayView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraOverlayView.swift; sourceTree = "<group>"; };
+		DDD971BB1D356D2200312A31 /* CustomPhotoAlbumManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomPhotoAlbumManager.swift; sourceTree = "<group>"; };
 		DDE0F3F21D1B2033000B81EB /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		DDE0F3F41D1B2256000B81EB /* ImageResult+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ImageResult+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		DDE0F3F51D1B2256000B81EB /* ImageResult.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageResult.swift; sourceTree = "<group>"; };
@@ -145,6 +147,7 @@
 				80313D231C1AB7C600C14F99 /* Main.storyboard */,
 				DD6EC97D1D26019A00830939 /* ProjectHistoryTableViewController.swift */,
 				8023BD181C35393200D52645 /* ResultsVC.swift */,
+				DDD971BB1D356D2200312A31 /* CustomPhotoAlbumManager.swift */,
 				DDE0F3F81D1B22DA000B81EB /* CoreData */,
 				DDDF84001D03A62C003E0840 /* Supportinf files */,
 			);
@@ -336,6 +339,7 @@
 				DD02359E1D05161400F1574C /* ImageProcessor.swift in Sources */,
 				DD6EC9801D26062000830939 /* CoreDataTableViewController.swift in Sources */,
 				80313D281C1AB7C600C14F99 /* mp1.xcdatamodeld in Sources */,
+				DDD971BC1D356D2200312A31 /* CustomPhotoAlbumManager.swift in Sources */,
 				80313D201C1AB7C600C14F99 /* AppDelegate.swift in Sources */,
 				DD55F02F1D26DA7C00719719 /* LevelerUIImagePickerController.swift in Sources */,
 			);
