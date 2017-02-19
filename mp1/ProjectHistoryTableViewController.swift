@@ -18,28 +18,28 @@ class ProjectHistoryTableViewController: CoreDataTableViewController, UISearchBa
         }
     }
     
-    func searchBarSearchButtonClicked(searchBar: UISearchBar) {
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         searchText = searchBar.text
         searchBar.resignFirstResponder()
     }
     
-    private var searchText : String? {
+    fileprivate var searchText : String? {
         didSet {
             updateUI()
         }
     }
     
     var managedObjectContext : NSManagedObjectContext? =
-        (UIApplication.sharedApplication().delegate as? AppDelegate)?.managedObjectContext
+        (UIApplication.shared.delegate as? AppDelegate)?.managedObjectContext
     {
         didSet {
             updateUI()
         }
     }
     
-    private func updateUI() {
+    fileprivate func updateUI() {
         if let context = managedObjectContext {
-            let request = NSFetchRequest(entityName: "ImageResult")
+            let request = NSFetchRequest<NSFetchRequestResult>(entityName: "ImageResult")
             if searchText != nil {
                 request.predicate = NSPredicate(format: "title contains [c] %@", searchText!)
             }
@@ -55,27 +55,27 @@ class ProjectHistoryTableViewController: CoreDataTableViewController, UISearchBa
         }
     }
     
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("ProjectInfoCell", forIndexPath: indexPath)
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "ProjectInfoCell", for: indexPath)
         
-        let imageResult = fetchedResultsController?.objectAtIndexPath(indexPath) as? ImageResult
-        imageResult?.managedObjectContext?.performBlockAndWait {
+        let imageResult = fetchedResultsController?.object(at: indexPath) as? ImageResult
+        imageResult?.managedObjectContext?.performAndWait {
             cell.textLabel?.text = imageResult?.title
             cell.detailTextLabel?.text = "\((imageResult?.lastSavedTime)!)"
         }
         return cell
     }
     
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return true
     }
     
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
-            if let project = fetchedResultsController?.objectAtIndexPath(indexPath) as? ImageResult {
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            if let project = fetchedResultsController?.object(at: indexPath) as? ImageResult {
                 let managedObjectContext = project.managedObjectContext!
-                managedObjectContext.performBlockAndWait {
-                    managedObjectContext.deleteObject(project)
+                managedObjectContext.performAndWait {
+                    managedObjectContext.delete(project)
                 }
                 
                 do {
@@ -87,24 +87,24 @@ class ProjectHistoryTableViewController: CoreDataTableViewController, UISearchBa
         }
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         updateUI()
     }
     
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        let imageResult = fetchedResultsController?.objectAtIndexPath(indexPath) as? ImageResult
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let imageResult = fetchedResultsController?.object(at: indexPath) as? ImageResult
         var imageProject = ImageProject()
-        imageResult?.managedObjectContext?.performBlockAndWait {
+        imageResult?.managedObjectContext?.performAndWait {
             imageProject = (imageResult?.createProject())!
         }
-        performSegueWithIdentifier("ShowResult", sender: imageProject)
+        performSegue(withIdentifier: "ShowResult", sender: imageProject)
     }
     
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         print("prepare for segue")
         
-        if let svc = segue.destinationViewController as? ResultsVC {
+        if let svc = segue.destination as? ResultsVC {
             let image = sender as? ImageProject
             svc.imageProject = image
             //svc.originalImage = image***************

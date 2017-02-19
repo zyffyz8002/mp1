@@ -20,18 +20,18 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
     @IBOutlet var theta_label: UILabel!
     @IBOutlet var phi_label: UILabel!
     
-    private let locationManager = CLLocationManager()
+    fileprivate let locationManager = CLLocationManager()
     //private let locationManagerDirection = CLLocationManager()
     
-    private var LatitudeGPS = NSString()
-    private var LongitudeGPS = NSString()
-    private var imageProject = ImageProject()
+    fileprivate var LatitudeGPS = NSString()
+    fileprivate var LongitudeGPS = NSString()
+    fileprivate var imageProject = ImageProject()
     
     @IBOutlet var response_label: UILabel!
     
     @IBOutlet var myImageView: UIImageView! {
         didSet {
-            myImageView.contentMode = .ScaleAspectFit
+            myImageView.contentMode = .scaleAspectFit
         }
     }
     //  @IBOutlet var myActivityIndicator: UIActivityIndicatorView!
@@ -42,12 +42,12 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
     
     // To display changing Theta value on the app screen
     
-    @IBAction func thetaSliderValueChanged(sender: UISlider) {
+    @IBAction func thetaSliderValueChanged(_ sender: UISlider) {
         
         let currentValue = Int(sender.value)
         //print("Slider changing to \(currentValue)")
         
-        dispatch_async(dispatch_get_main_queue(),{
+        DispatchQueue.main.async(execute: {
             self.theta_label.text = "\(currentValue)"
         })
         
@@ -56,28 +56,28 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
     
     // To display changing Phi value on the app screen
     
-    @IBAction func phiSliderValueChanged(sender: UISlider) {
+    @IBAction func phiSliderValueChanged(_ sender: UISlider) {
         
         let currentValue = Int(sender.value)
         //print("Slider changing to \(currentValue)")
         
-        dispatch_async(dispatch_get_main_queue(),{
+        DispatchQueue.main.async(execute: {
             self.phi_label.text = "\(currentValue)"
         })
         
     }
     
-    private var picker = LevelerUIImagePickerController()
+    fileprivate var picker = LevelerUIImagePickerController()
        // ProtraitUIImagePickerController()
     
-    private func updateGeoInfoToProject() {
+    fileprivate func updateGeoInfoToProject() {
         imageProject.latitude = locationManager.location?.coordinate.latitude
         imageProject.longtidude = locationManager.location?.coordinate.longitude
         imageProject.heading = locationManager.heading?.trueHeading
         if let motionData = motionManager.deviceMotion {
             var xoffset = CGFloat(motionData.attitude.roll)
-            let yoffset = CGFloat(motionData.attitude.pitch) * LevelerParameters.Sensitivity
-            xoffset = min(abs(xoffset), 3-abs(xoffset)) * xoffset / abs(xoffset) * LevelerParameters.Sensitivity
+            let yoffset = CGFloat(motionData.attitude.pitch) //* LevelerParameters.Sensitivity
+            xoffset = min(abs(xoffset), 3-abs(xoffset)) * xoffset / abs(xoffset) //* LevelerParameters.Sensitivity
             imageProject.leveler = LevelInformation(x: xoffset, y: yoffset)
         } else {
             imageProject.leveler = nil
@@ -91,13 +91,13 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
             let pickerFrame = picker.view.frame
             let shortSide = pickerFrame.width < pickerFrame.height ?  pickerFrame.width : pickerFrame.height
             let longSide = pickerFrame.width >= pickerFrame.height ?  pickerFrame.width : pickerFrame.height
-            let overlayNewFrame = CGRectMake(0, 0, shortSide, longSide - PhotoScreenBounds.confirmScreenLowerBound)
+            let overlayNewFrame = CGRect(x: 0, y: 0, width: shortSide, height: longSide - PhotoScreenBounds.confirmScreenLowerBound)
             cameraOverlayView.frame = overlayNewFrame
             cameraOverlayView.screenMode = .photoConfirmScreen
         }
     }
     
-    @objc func changeToPhotoCatureOverlay(picker : UIImagePickerController) {
+    @objc func changeToPhotoCatureOverlay(_ picker : UIImagePickerController) {
         if let cameraOverlayView = self.picker.cameraOverlayView as? CameraOverlayView {
             let pickerFrame = self.picker.view.frame
             cameraOverlayView.frame = pickerFrame
@@ -105,13 +105,13 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
         }
     }
     
-    private func setCameraPicker() {
-        let status = AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo)
+    fileprivate func setCameraPicker() {
+        let status = AVCaptureDevice.authorizationStatus(forMediaType: AVMediaTypeVideo)
         
-        if status == .Authorized {
+        if status == .authorized {
             picker.delegate = self
-            picker.sourceType = .Camera
-            picker.cameraCaptureMode = .Photo
+            picker.sourceType = .camera
+            picker.cameraCaptureMode = .photo
             //picker.mediaTypes = .kUTTypeImage
         }
     }
@@ -119,38 +119,36 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
     @IBAction func clickedOnCaptureImage() {
         
         print("In clickedOnCaptureImage")
-        let status = AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo)
+        let status = AVCaptureDevice.authorizationStatus(forMediaType: AVMediaTypeVideo)
         
-        if status == .Authorized {
-            if (UIImagePickerController.isSourceTypeAvailable(.Camera)) {
-                NSNotificationCenter.defaultCenter().addObserver(
+        if status == .authorized {
+            if (UIImagePickerController.isSourceTypeAvailable(.camera)) {
+                NotificationCenter.default.addObserver(
                     self,
                     selector: #selector(changeToConfirmScreenOverlay),
-                    name: "_UIImagePickerControllerUserDidCaptureItem",
+                    name: NSNotification.Name(rawValue: "_UIImagePickerControllerUserDidCaptureItem"),
                     object: nil
                 )
-                NSNotificationCenter.defaultCenter().addObserver(
+                NotificationCenter.default.addObserver(
                     self,
                     selector: #selector(changeToPhotoCatureOverlay),
-                    name: "_UIImagePickerControllerUserDidRejectItem",
+                    name: NSNotification.Name(rawValue: "_UIImagePickerControllerUserDidRejectItem"),
                     object: nil
                 )
                 
                 //picker.modalPresentationStyle = UIModalPresentationStyle.FullScreen
-                let currentDevice = UIDevice.currentDevice()
-                if !picker.isBeingPresented() {
-                    presentViewController( self.picker, animated: false, completion: {
+                let currentDevice = UIDevice.current
+                if !picker.isBeingPresented {
+                    present( self.picker, animated: false, completion: {
                         let cameraOverlayViewController = CameraOverlayViewController(nibName: "CameraOverlayViewController", bundle: nil)
                         let cameraOverlayView = cameraOverlayViewController.view as! CameraOverlayView
                         
                         cameraOverlayView.frame = self.picker.view.frame
                         cameraOverlayView.screenMode = .photoCaptureScreen
                         self.picker.cameraOverlayView = cameraOverlayView
-                        self.picker.locationManager = self.locationManager
-                        self.picker.motionManager = self.motionManager
                         self.picker.addLevelerViewToOverlayView()
             
-                        while (currentDevice.generatesDeviceOrientationNotifications) {
+                        while (currentDevice.isGeneratingDeviceOrientationNotifications) {
                             currentDevice.endGeneratingDeviceOrientationNotifications()
                         }
                     })
@@ -159,8 +157,8 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
             }
             
         } else {
-            let noCameraPermissionAlert = UIAlertController(title: nil, message: "No permission to camera, please go to setting -> privacy -> camera", preferredStyle: .Alert)
-            noCameraPermissionAlert.addAction(UIAlertAction(title: "OK", style: .Cancel, handler: nil))
+            let noCameraPermissionAlert = UIAlertController(title: nil, message: "No permission to camera, please go to setting -> privacy -> camera", preferredStyle: .alert)
+            noCameraPermissionAlert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
         }
     }
     
@@ -168,11 +166,11 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
     
     @IBAction func clickedOnPhotoLibrary() {
         picker.delegate = self
-        picker.sourceType = .PhotoLibrary
-        presentViewController(picker, animated: true, completion: nil)
+        picker.sourceType = .photoLibrary
+        present(picker, animated: true, completion: nil)
     }
     
-    private var displayImage : UIImage? {
+    fileprivate var displayImage : UIImage? {
         get {
             return myImageView.image
         }
@@ -183,17 +181,17 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
         }
     }
     
-    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         
         switch picker.sourceType {
-        case .Camera:
-            let status = AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo)
-            if status == .Authorized {
+        case .camera:
+            let status = AVCaptureDevice.authorizationStatus(forMediaType: AVMediaTypeVideo)
+            if status == .authorized {
                 if let originalImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
                     displayImage = UIImage.createSquareImage(fromImage: originalImage)
                 }
             }
-        case .PhotoLibrary:
+        case .photoLibrary:
             if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
                 displayImage = UIImage.normalizeImage(image)
             }
@@ -201,11 +199,11 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
         default:
             break
         }
-        dismissViewControllerAnimated(true, completion: nil)
+        dismiss(animated: true, completion: nil)
     }
     
-    private func askForCamperaPermission() {
-        AVCaptureDevice.requestAccessForMediaType(AVMediaTypeVideo) {
+    fileprivate func askForCamperaPermission() {
+        AVCaptureDevice.requestAccess(forMediaType: AVMediaTypeVideo) {
             granted in
             if (granted) {
                 print("User allowed camera")
@@ -215,51 +213,51 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
         }
     }
     
-    override func shouldAutorotate() -> Bool {
+    override var shouldAutorotate : Bool {
         return false
     }
     
-    override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
-        return UIInterfaceOrientationMask.Portrait
+    override var supportedInterfaceOrientations : UIInterfaceOrientationMask {
+        return UIInterfaceOrientationMask.portrait
     }
     
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        let currentDevice = UIDevice.currentDevice()
-        while (currentDevice.generatesDeviceOrientationNotifications) {
+        let currentDevice = UIDevice.current
+        while (currentDevice.isGeneratingDeviceOrientationNotifications) {
             currentDevice.endGeneratingDeviceOrientationNotifications()
         }
      }
     
-    @objc private func printOrientationChange() {
+    @objc fileprivate func printOrientationChange() {
         print("orientation changed")
     }
     
     @IBOutlet weak var levelerView: LevelerView!
-    private var motionManager = CMMotionManager()
+    fileprivate var motionManager = CMMotionManager()
     
-    private func startToCheckAttitude() {
-        let queue = NSOperationQueue()
-        if motionManager.deviceMotionAvailable {
-            motionManager.deviceMotionUpdateInterval = LevelerParameters.UpdateInterval
-            motionManager.startDeviceMotionUpdatesToQueue(queue)
+    fileprivate func startToCheckAttitude() {
+        let queue = OperationQueue()
+        if motionManager.isDeviceMotionAvailable {
+            motionManager.deviceMotionUpdateInterval = LevelerParameters.updateInterval
+            motionManager.startDeviceMotionUpdates(to: queue)
             {
                 [weak weakSelf = self] (data, error) in
                 
                 guard let motionData = data else {return }
                 var xoffset = CGFloat(motionData.attitude.roll)
-                let yoffset = CGFloat(motionData.attitude.pitch) * LevelerParameters.Sensitivity
+                let yoffset = CGFloat(motionData.attitude.pitch) * LevelerParameters.sensitivity
                 
-                xoffset = min(abs(xoffset), 3-abs(xoffset)) * xoffset / abs(xoffset) * LevelerParameters.Sensitivity
+                xoffset = min(abs(xoffset), 3-abs(xoffset)) * xoffset / abs(xoffset) * LevelerParameters.sensitivity
                 
-                NSOperationQueue.mainQueue().addOperationWithBlock {
+                OperationQueue.main.addOperation {
                     weakSelf?.levelerView.offset = CGPoint(x: xoffset, y:yoffset)
                 }
             }
         }
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         startToCheckAttitude()
         updateLocation()
@@ -274,23 +272,23 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
         
         askForCamperaPermission()
         setCameraPicker()
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(printOrientationChange), name: UIDeviceOrientationDidChangeNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(printOrientationChange), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
         
         
     }
     
-    private func stopCheckingAttitude()
+    fileprivate func stopCheckingAttitude()
     {
         motionManager.stopDeviceMotionUpdates()
         
     }
-    private func stopUpdatingLocation()
+    fileprivate func stopUpdatingLocation()
     {
         locationManager.stopUpdatingHeading()
         locationManager.stopUpdatingLocation()
     }
     
-    override func viewDidDisappear(animated: Bool) {
+    override func viewDidDisappear(_ animated: Bool) {
         
         print("view disapear, disable attitude and location")
         super.viewDidDisappear(animated)
@@ -308,22 +306,22 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
     
     // This function is called when the user clicks on the button "Process Image"
     
-    @IBAction func myImageUploadRequest(sender: AnyObject) {
+    @IBAction func myImageUploadRequest(_ sender: AnyObject) {
         
         //let imageProcessor = ImageProcessor()
         //imageProcessor.inputImage = myImageView.image
         //imageProcessor.resultImage
-        self.performSegueWithIdentifier("segueToResultsVC", sender: self)
+        self.performSegue(withIdentifier: "segueToResultsVC", sender: self)
     }
     
     
     // This function is called to take the user to the next screen in the app, when the image processing result is sent by the web server.
     
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any!) {
         print("prepare for segue")
         if (segue.identifier == "segueToResultsVC") {
             
-            let svc = segue.destinationViewController as! ResultsVC;
+            let svc = segue.destination as! ResultsVC;
             svc.imageProject = imageProject
         }
     }
@@ -338,16 +336,16 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
         self.locationManager.startUpdatingHeading()
     }
     
-    func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         //          locationManager.stopUpdatingLocation() 
         //  Stop Location Manager - keep here to run just once
-        LatitudeGPS = String(format: "%.2f", manager.location!.coordinate.latitude)
-        LongitudeGPS = String(format: "%.2f", manager.location!.coordinate.longitude)
+        LatitudeGPS = String(format: "%.2f", manager.location!.coordinate.latitude) as NSString
+        LongitudeGPS = String(format: "%.2f", manager.location!.coordinate.longitude) as NSString
         Lat_label.text = LatitudeGPS as String
         Long_label.text = LongitudeGPS as String
     }
     
-    func locationManager(manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
+    func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
         var h = newHeading.magneticHeading
         let h2 = newHeading.trueHeading // will be -1 if we have no location info
         
@@ -358,7 +356,7 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
         let cards = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
         var dir = "N"
         
-        for (ix, card) in cards.enumerate() {
+        for (ix, card) in cards.enumerated() {
             if h < 45.0/2.0 + 45.0*Double(ix) {
                 dir = card
                 break
@@ -368,7 +366,7 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
         let concatnatedValue = dir + " " + String(format:"%.2f", h2)
         magLabel.text = concatnatedValue
         
-        NSOperationQueue.mainQueue().addOperationWithBlock {
+        OperationQueue.main.addOperation {
             
             [weak weakSelf = self] in
             weakSelf?.levelerView.direction = CGFloat(h2)

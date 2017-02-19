@@ -20,7 +20,7 @@ class ImageProcessor
             
             
             if inputProject?.originalImage != nil {
-                getNewPixelsCount(averageRGB)
+                getNewPixelsCount(colorFilter: averageRGB)
             }
             
             if inputProject?.edittedImage == nil {
@@ -47,7 +47,7 @@ class ImageProcessor
             if inputProject != nil {
                 inputProject?.threshold = newValue
                 inputProject?.isThresholdAutoDecided = false
-                processImage(averageRGB)
+                processImage(colorFilter: averageRGB)
             }
         }
 
@@ -65,12 +65,12 @@ class ImageProcessor
     
     func processWithDefaultThershold() {
         if inputProject?.autoThreshold == nil {
-            inputProject?.autoThreshold = clusterRidlerAlgorithm(Constant.clusterRidlerInitValue)
+            inputProject?.autoThreshold = clusterRidlerAlgorithm(colorThreshold: Constant.clusterRidlerInitValue)
             
         }
         inputProject?.threshold = inputProject?.autoThreshold
         inputProject?.isThresholdAutoDecided = true
-        processImage(averageRGB)
+        processImage(colorFilter: averageRGB)
         
     }
     
@@ -113,9 +113,9 @@ class ImageProcessor
         
         for colorValue in filteredPixelsCount! {
             if colorValue > colorThreshold {
-                brightAverage.addValue(colorValue)
+                brightAverage.addValue(value: colorValue)
             } else {
-                darkAverage.addValue(colorValue)
+                darkAverage.addValue(value: colorValue)
             }
         }
         
@@ -125,14 +125,14 @@ class ImageProcessor
             return newThreshold
         }
         
-        return clusterRidlerAlgorithm(newThreshold)
+        return clusterRidlerAlgorithm(colorThreshold: newThreshold)
     }
     
     private struct AverageCalculator
     {
         var result = 0.0
         private var count = 0
-        private mutating func addValue(value: Double) {
+        mutating func addValue(value: Double) {
             let doubleCount = Double(count)
             result = doubleCount / (doubleCount + 1) * result + value / (doubleCount + 1)
             count = count + 1
@@ -142,25 +142,30 @@ class ImageProcessor
     private func getNewPixelsCount(colorFilter : (Double, Double, Double) -> Double) {
         
         if inputProject != nil {
-            let inputCGImage     = inputProject!.originalImage!.CGImage
+            let inputCGImage     = inputProject!.originalImage!.cgImage
             let colorSpace       = CGColorSpaceCreateDeviceRGB()
-            let width            = CGImageGetWidth(inputCGImage)
-            let height           = CGImageGetHeight(inputCGImage)
+            let width            = inputCGImage!.width
+            let height           = inputCGImage!.height
             let bytesPerPixel    = 4
             let bitsPerComponent = 8
             let bytesPerRow      = bytesPerPixel * width
-            let bitmapInfo       = CGImageAlphaInfo.PremultipliedFirst.rawValue | CGBitmapInfo.ByteOrder32Little.rawValue
-            let context = CGBitmapContextCreate(nil, width, height, bitsPerComponent, bytesPerRow, colorSpace, bitmapInfo)
-            CGContextDrawImage(context, CGRectMake(0, 0, CGFloat(width), CGFloat(height)), inputCGImage)
+            let bitmapInfo       = CGImageAlphaInfo.premultipliedFirst.rawValue | CGBitmapInfo.byteOrder32Little.rawValue
+            let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: colorSpace, bitmapInfo: bitmapInfo)
+            context?.draw(inputCGImage!, in: CGRect(x:0, y:0, width:CGFloat(width), height:CGFloat(height)))
             
-            let pixelBuffer = UnsafeMutablePointer<UInt32>(CGBitmapContextGetData(context))
-            var currentPixel = pixelBuffer
-            filteredPixelsCount = [Double](count: width * height, repeatedValue: 0.0)
+            //CGContextDrawImage(context, CGRectMake(0, 0, CGFloat(width), CGFloat(height)), inputCGImage)
+            //draw(context)
+            
+            let uncasteddata = UnsafeRawPointer(context!.data)
+            let pixelBuffer = uncasteddata?.assumingMemoryBound(to: UInt32.self)
+            var currentPixel = pixelBuffer!
+            filteredPixelsCount = [Double](repeating: 0.0, count: width * height)
             
             for  h in 0..<Int(height) {
                 for  w in 0..<Int(width) {
-                    let pixel = currentPixel.memory
-                    let brightness = colorFilter(Double(getRedComponent(pixel)) , Double(getBlueComponent(pixel)) , Double(getGreenComponent(pixel)) )
+                    let pixel = currentPixel.pointee
+                    //let pixel = currentPixel
+                    let brightness = colorFilter(Double(getRedComponent(color: pixel)) , Double(getBlueComponent(color:pixel)) , Double(getGreenComponent(color:pixel)) )
                     filteredPixelsCount![h * width + w] = brightness
                     currentPixel = currentPixel + 1
                 }
@@ -199,19 +204,21 @@ class ImageProcessor
 
         
         
-        let inputCGImage     = inputProject!.originalImage!.CGImage
+        let inputCGImage     = inputProject!.originalImage!.cgImage
         let colorSpace       = CGColorSpaceCreateDeviceRGB()
-        let width            = CGImageGetWidth(inputCGImage)
-        let height           = CGImageGetHeight(inputCGImage)
+        let width            = inputCGImage!.width
+        let height           = inputCGImage!.height
         let bytesPerPixel    = 4
         let bitsPerComponent = 8
         let bytesPerRow      = bytesPerPixel * width
-        let bitmapInfo       = CGImageAlphaInfo.PremultipliedFirst.rawValue | CGBitmapInfo.ByteOrder32Little.rawValue
-        let context = CGBitmapContextCreate(nil, width, height, bitsPerComponent, bytesPerRow, colorSpace, bitmapInfo)
-        CGContextDrawImage(context, CGRectMake(0, 0, CGFloat(width), CGFloat(height)), inputCGImage)
+        let bitmapInfo       = CGImageAlphaInfo.premultipliedFirst.rawValue | CGBitmapInfo.byteOrder32Little.rawValue
+        let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: colorSpace, bitmapInfo: bitmapInfo)
         
-        let pixelBuffer = UnsafeMutablePointer<UInt32>(CGBitmapContextGetData(context))
-        var currentPixel = pixelBuffer
+        context?.draw(inputCGImage!, in: CGRect(x:0, y:0, width:CGFloat(width), height:CGFloat(height)))
+        
+        let uncasteddata = UnsafeMutableRawPointer(context!.data)
+        let pixelBuffer = uncasteddata?.assumingMemoryBound(to: UInt32.self)
+        var currentPixel = pixelBuffer!
         
         let blackColor = getColorFromRgba(red: 0, green: 0, blue: 0, alpha: 255)
         let whiteColor = getColorFromRgba(red: 255, green: 255, blue: 255, alpha: 255)
@@ -227,11 +234,11 @@ class ImageProcessor
                 //let brightness = colorFilter(Double(getRedComponent(pixel)) , Double(getBlueComponent(pixel)) , Double(getGreenComponent(pixel)) )
                 let brightness = filteredPixelsCount![h * width + w]
                 
-                if brightness > localThreshold {
-                    currentPixel.memory = whiteColor
+                if brightness > localThreshold! {
+                    currentPixel.pointee = whiteColor
                     skyPoints = skyPoints! + 1
                 } else {
-                    currentPixel.memory = blackColor
+                    currentPixel.pointee = blackColor
                     nonSkyPoints = nonSkyPoints! + 1
                 }
                 
@@ -245,8 +252,8 @@ class ImageProcessor
         //print("\(threshold!): loop \(CACurrentMediaTime() - start)" )
         //start = CACurrentMediaTime()
         
-        let outputCGImage = CGBitmapContextCreateImage(context)
-        inputProject?.edittedImage = UIImage(CGImage: outputCGImage!, scale: inputProject!.originalImage!.scale, orientation: inputProject!.originalImage!.imageOrientation)
+        let outputCGImage = context!.makeImage()
+        inputProject?.edittedImage = UIImage(cgImage: outputCGImage!, scale: inputProject!.originalImage!.scale, orientation: inputProject!.originalImage!.imageOrientation)
         
         //let end = CACurrentMediaTime()
         //print("\(threshold!): ending: \(end - start)" )
@@ -258,7 +265,7 @@ class ImageProcessor
         initAllStatus()
         if inputProject != nil {
             
-            processOriginalImage(colorFilter)
+            processOriginalImage(colorFilter: colorFilter)
             //mergeTwoImage()
         }
     }
@@ -304,7 +311,7 @@ class ImageProcessor
         return color
     }
     
-    private func getColorFromRgba(red red: UInt8, green: UInt8, blue: UInt8, alpha: UInt8) -> UInt32 {
+    private func getColorFromRgba(red: UInt8, green: UInt8, blue: UInt8, alpha: UInt8) -> UInt32 {
         return UInt32(red) | (UInt32(green) << 8) | (UInt32(blue) << 16) | (UInt32(alpha) << 24)
     }
     

@@ -18,32 +18,32 @@ class CaptureOrLibraryViewController: UIViewController,UIImagePickerControllerDe
         static let segueToResultVC = "Show Result"
     }
     
-    @IBAction func capturePhoto(sender: UIButton) {
-        askForCamperaPermission()
-        presentPickerWithOverlayView()
+    @IBAction func capturePhoto(_ sender: UIButton) {
+
+        //presentPickerWithOverlayView()
     }
     
-    private var picker = LevelerUIImagePickerController()
+    fileprivate var picker = LevelerUIImagePickerController()
 
     
-    private func initCameraPicker() {
+    fileprivate func initCameraPicker() {
         picker.delegate = self
 
     }
     
-    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         
-        dismissViewControllerAnimated(true, completion: nil)
+        dismiss(animated: true, completion: nil)
         switch picker.sourceType {
-        case .Camera:
-            let status = AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo)
-            if status == .Authorized {
+        case .camera:
+            let status = AVCaptureDevice.authorizationStatus(forMediaType: AVMediaTypeVideo)
+            if status == .authorized {
                 if let originalImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
                     imageProject.originalImage = UIImage.createSquareImage(fromImage: originalImage)
-                    performSegueWithIdentifier(storyboardIdentifier.segueToResultVC, sender: imageProject)
+                    performSegue(withIdentifier: storyboardIdentifier.segueToResultVC, sender: imageProject)
                 }
             }
-        case .PhotoLibrary:
+        case .photoLibrary:
             if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
                 imageProject.originalImage  = UIImage.normalizeImage(image)
             }
@@ -53,8 +53,8 @@ class CaptureOrLibraryViewController: UIViewController,UIImagePickerControllerDe
         }
     }
     
-    private func askForCamperaPermission() {
-        AVCaptureDevice.requestAccessForMediaType(AVMediaTypeVideo) {
+    fileprivate func askForCamperaPermission() {
+        AVCaptureDevice.requestAccess(forMediaType: AVMediaTypeVideo) {
             granted in
             if (granted) {
                 print("User allowed camera")
@@ -64,78 +64,62 @@ class CaptureOrLibraryViewController: UIViewController,UIImagePickerControllerDe
         }
     }
     
-    private var imageProject = ImageProject()
-    private let locationManager = CLLocationManager()
-    private var motionManager = CMMotionManager()
-    
-    private func updateGeoInfoToProject() {
-        imageProject.latitude = locationManager.location?.coordinate.latitude
-        imageProject.longtidude = locationManager.location?.coordinate.longitude
-        imageProject.heading = locationManager.heading?.trueHeading
-        if let motionData = motionManager.deviceMotion {
-            var xoffset = CGFloat(motionData.attitude.roll)
-            let yoffset = CGFloat(motionData.attitude.pitch) * LevelerParameters.Sensitivity
-            xoffset = min(abs(xoffset), 3-abs(xoffset)) * xoffset / abs(xoffset) * LevelerParameters.Sensitivity
-            imageProject.leveler = LevelInformation(x: xoffset, y: yoffset)
-        } else {
-            imageProject.leveler = nil
-        }
-    }
-    
+    fileprivate var imageProject = ImageProject()
+
     @objc func changeToConfirmScreenOverlay() {
-        updateGeoInfoToProject()
-        picker.stopUpdateLeveler()
+        imageProject.updateGeoInfo()
+        picker.levelerViewController.stopUpdateLeveler()
+        //picker.stopUpdateLeveler()
         if let cameraOverlayView = picker.cameraOverlayView as? CameraOverlayView {
             let pickerFrame = picker.view.frame
             let shortSide = pickerFrame.width < pickerFrame.height ?  pickerFrame.width : pickerFrame.height
             let longSide = pickerFrame.width >= pickerFrame.height ?  pickerFrame.width : pickerFrame.height
-            let overlayNewFrame = CGRectMake(0, 0, shortSide, longSide - PhotoScreenBounds.confirmScreenLowerBound)
+            let overlayNewFrame = CGRect(x: 0, y: 0, width: shortSide, height: longSide - PhotoScreenBounds.confirmScreenLowerBound)
             cameraOverlayView.frame = overlayNewFrame
             cameraOverlayView.screenMode = .photoConfirmScreen
         }
     }
     
-    @objc func changeToPhotoCatureOverlay(picker : UIImagePickerController) {
+    @objc func changeToPhotoCatureOverlay(_ picker : UIImagePickerController) {
         if let cameraOverlayView = self.picker.cameraOverlayView as? CameraOverlayView {
             let pickerFrame = self.picker.view.frame
             cameraOverlayView.frame = pickerFrame
             cameraOverlayView.screenMode = .photoCaptureScreen
         }
         //let levelerPicker = picker as? LevelerUIImagePickerController
-        self.picker.startUpdateLeveler()
+        self.picker.levelerViewController.startUpdateLeveler(nil)
     }
     
-    private func addOverlayViewObserver() {
-        NSNotificationCenter.defaultCenter().addObserver(
+    fileprivate func addOverlayViewObserver() {
+        NotificationCenter.default.addObserver(
             self,
             selector: #selector(changeToConfirmScreenOverlay),
-            name: "_UIImagePickerControllerUserDidCaptureItem",
+            name: NSNotification.Name(rawValue: "_UIImagePickerControllerUserDidCaptureItem"),
             object: nil
         )
-        NSNotificationCenter.defaultCenter().addObserver(
+        NotificationCenter.default.addObserver(
             self,
             selector: #selector(changeToPhotoCatureOverlay),
-            name: "_UIImagePickerControllerUserDidRejectItem",
+            name: NSNotification.Name(rawValue: "_UIImagePickerControllerUserDidRejectItem"),
             object: nil
         )
     }
-    private func presentPicker() {
+    
+    fileprivate func presentPicker() {
         initCameraPicker()
-        let currentDevice = UIDevice.currentDevice()
+        let currentDevice = UIDevice.current
         
-        if !picker.isBeingPresented() {
-            presentViewController( self.picker, animated: false, completion: {
+        if !picker.isBeingPresented {
+            present( self.picker, animated: false, completion: {
                 let cameraOverlayViewController = CameraOverlayViewController(nibName: "CameraOverlayViewController", bundle: nil)
                 let cameraOverlayView = cameraOverlayViewController.view as! CameraOverlayView
                 
                 cameraOverlayView.frame = self.picker.view.frame
                 cameraOverlayView.screenMode = .photoCaptureScreen
                 self.picker.cameraOverlayView = cameraOverlayView
-                self.picker.locationManager = self.locationManager
-                self.picker.motionManager = self.motionManager
                 self.picker.addLevelerViewToOverlayView()
                 
-                while (currentDevice.generatesDeviceOrientationNotifications) {
+                while (currentDevice.isGeneratingDeviceOrientationNotifications) {
                     currentDevice.endGeneratingDeviceOrientationNotifications()
                 }
             })
@@ -143,26 +127,28 @@ class CaptureOrLibraryViewController: UIViewController,UIImagePickerControllerDe
         picker.view.setNeedsLayout()
     }
     
-    private func presentPickerWithOverlayView() {
-        let status = AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo)
+    fileprivate func presentPickerWithOverlayView() {
+        let status = AVCaptureDevice.authorizationStatus(forMediaType: AVMediaTypeVideo)
         
-        if status == .Authorized {
-            if (UIImagePickerController.isSourceTypeAvailable(.Camera)) {
-                picker.sourceType = .Camera
-                picker.cameraCaptureMode = .Photo
+        if status == .authorized {
+            if (UIImagePickerController.isSourceTypeAvailable(.camera)) {
+                picker.sourceType = .camera
+                picker.cameraCaptureMode = .photo
                 addOverlayViewObserver()
                 presentPicker()
             }
         }
         else {
-            let noCameraPermissionAlert = UIAlertController(title: "Camera Permission", message: "No permission to camera, please go to setting -> privacy -> camera", preferredStyle: .Alert)
-            noCameraPermissionAlert.addAction(UIAlertAction(title: "OK", style: .Cancel, handler: nil))
+            let noCameraPermissionAlert = UIAlertController(title: "Camera Permission", message: "No permission to camera, please go to setting -> privacy -> camera", preferredStyle: .alert)
+            noCameraPermissionAlert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
         }
         
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.title = GeneralConstant.APPName
+        askForCamperaPermission()
         
                 // Do any additional setup after loading the view.
     }
@@ -177,9 +163,11 @@ class CaptureOrLibraryViewController: UIViewController,UIImagePickerControllerDe
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        
         if segue.identifier == storyboardIdentifier.segueToResultVC {
-            if let destinationVC = segue.destinationViewController as? ResultsVC {
+            if let destinationVC = segue.destination as? ResultsVC {
                 if let imageProject = sender as? ImageProject {
                     destinationVC.imageProject = imageProject
                 }
@@ -200,9 +188,9 @@ extension NSMutableData {
     ///
     /// - parameter string:       The string to be added to the `NSMutableData`.
     
-    func appendString(string: String) {
-        let data = string.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true)
-        appendData(data!)
+    func appendString(_ string: String) {
+        let data = string.data(using: String.Encoding.utf8, allowLossyConversion: true)
+        append(data!)
     }
 }
 
@@ -213,13 +201,7 @@ struct PhotoScreenBounds {
     static let confirmScreenUpperBound : CGFloat = 70
 }
 
-struct LevelerParameters {
-    static let Radius: CGFloat = 5
-    static let Sensitivity : CGFloat = 35 / 1.5
-    static let UpdateInterval : Double = 0.05
-    static let MaxRange : CGFloat = 70
-    
-}
+
 
 
 extension UIImage {
@@ -228,22 +210,22 @@ extension UIImage {
         let shortSide = originalImage.size.width < originalImage.size.height ? originalImage.size.width : originalImage.size.height
         let longSide = originalImage.size.width >= originalImage.size.height ? originalImage.size.width : originalImage.size.height
         let clipped = (longSide - shortSide) / 2
-        let rect = CGRectMake(0, clipped, shortSide, shortSide)
+        let rect = CGRect(x: 0, y: clipped, width: shortSide, height: shortSide)
         
         UIGraphicsBeginImageContextWithOptions(rect.size, false, originalImage.scale)
-        originalImage.drawAtPoint(CGPointMake(-rect.origin.x, -rect.origin.y))
+        originalImage.draw(at: CGPoint(x: -rect.origin.x, y: -rect.origin.y))
         let croppedImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
-        return croppedImage
+        return croppedImage!
     }
     
-    class func normalizeImage(image: UIImage) -> UIImage {
+    class func normalizeImage(_ image: UIImage) -> UIImage {
         UIGraphicsBeginImageContextWithOptions(image.size, false, image.scale)
-        image.drawInRect(CGRect(origin: CGPoint(x:0, y:0), size: image.size))
+        image.draw(in: CGRect(origin: CGPoint(x:0, y:0), size: image.size))
         let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
-        return normalizedImage
+        return normalizedImage!
     }
 }
 

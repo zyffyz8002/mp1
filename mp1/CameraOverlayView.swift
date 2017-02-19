@@ -11,16 +11,16 @@ import UIKit
 class CameraOverlayView: UIView {
     
     
-    private func drawARect(path: UIBezierPath, startPoint: CGPoint, width: CGFloat, height: CGFloat) {
-        path.moveToPoint(startPoint)
-        path.addLineToPoint(CGPoint(x: startPoint.x + width, y: startPoint.y))
-        path.addLineToPoint(CGPoint(x: startPoint.x + width, y: startPoint.y + height))
-        path.addLineToPoint(CGPoint(x: startPoint.x , y: startPoint.y + height))
-        path.closePath()
+    fileprivate func drawARect(_ path: UIBezierPath, startPoint: CGPoint, width: CGFloat, height: CGFloat) {
+        path.move(to: startPoint)
+        path.addLine(to: CGPoint(x: startPoint.x + width, y: startPoint.y))
+        path.addLine(to: CGPoint(x: startPoint.x + width, y: startPoint.y + height))
+        path.addLine(to: CGPoint(x: startPoint.x , y: startPoint.y + height))
+        path.close()
         path.fill()
     }
     
-    private func drawOverlay() -> UIBezierPath
+    fileprivate func drawOverlay() -> UIBezierPath
     {
         let path = UIBezierPath()
         if screenMode != nil {
@@ -52,8 +52,8 @@ class CameraOverlayView: UIView {
         case photoConfirmScreen
     }
     
-    override func drawRect(rect: CGRect) {
-        UIColor.blackColor().set()
+    override func draw(_ rect: CGRect) {
+        UIColor.black.set()
         drawOverlay().stroke()
     }
     

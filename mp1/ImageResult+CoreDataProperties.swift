@@ -14,9 +14,9 @@ import CoreData
 
 extension ImageResult {
 
-    @NSManaged var edittedImageData: NSData?
-    @NSManaged var lastSavedTime: NSDate?
-    @NSManaged var originalImageData: NSData?
+    @NSManaged var edittedImageData: Data?
+    @NSManaged var lastSavedTime: Date?
+    @NSManaged var originalImageData: Data?
     @NSManaged var title: String?
     @NSManaged var longtitude: NSNumber?
     @NSManaged var leveldx: NSNumber?

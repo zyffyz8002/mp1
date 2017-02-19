@@ -15,7 +15,7 @@ class CustomPhotoAlbumManager: NSObject {
     func requestForPhotoAlbumAutherization() -> Bool {
         
         switch PHPhotoLibrary.authorizationStatus() {
-        case .Authorized:
+        case .authorized:
             return true
         default:
             PHPhotoLibrary.requestAuthorization{ (status) in
@@ -25,17 +25,17 @@ class CustomPhotoAlbumManager: NSObject {
         return false
     }
     
-    private func fetchPhotoAlbum() -> PHAssetCollection? {
+    fileprivate func fetchPhotoAlbum() -> PHAssetCollection? {
         let fetchOptions = PHFetchOptions()
         fetchOptions.predicate = NSPredicate(format: "title = %@", CustomPhotoAlbumManager.albumName)
-        let collection = PHAssetCollection.fetchAssetCollectionsWithType(.Album, subtype: .Any, options: fetchOptions)
+        let collection = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
         
-        return collection.firstObject as? PHAssetCollection
+        return collection.firstObject //as? PHAssetCollection
     }
     
     func savePhoto(withPhoto image : UIImage) -> Bool {
         
-        if PHPhotoLibrary.authorizationStatus() != .Authorized {
+        if PHPhotoLibrary.authorizationStatus() != .authorized {
             return false
         }
         
@@ -45,8 +45,8 @@ class CustomPhotoAlbumManager: NSObject {
         if assetCollection == nil {
             do
             {
-                try PHPhotoLibrary.sharedPhotoLibrary().performChangesAndWait {
-                    PHAssetCollectionChangeRequest.creationRequestForAssetCollectionWithTitle(CustomPhotoAlbumManager.albumName)
+                try PHPhotoLibrary.shared().performChangesAndWait {
+                    PHAssetCollectionChangeRequest.creationRequestForAssetCollection(withTitle: CustomPhotoAlbumManager.albumName)
                 }
                 assetCollection = fetchPhotoAlbum()
             } catch let error {
@@ -57,8 +57,8 @@ class CustomPhotoAlbumManager: NSObject {
         
         do
         {
-            try PHPhotoLibrary.sharedPhotoLibrary().performChangesAndWait {
-                assetCollectionChangeRequest = PHAssetCollectionChangeRequest(forAssetCollection: assetCollection!)
+            try PHPhotoLibrary.shared().performChangesAndWait {
+                assetCollectionChangeRequest = PHAssetCollectionChangeRequest(for: assetCollection!)
             }
         } catch let error {
             print("assigning album error: \(error)")
@@ -68,17 +68,17 @@ class CustomPhotoAlbumManager: NSObject {
         return savePhoto(withPhoto: image, withChangeRequest: assetCollectionChangeRequest)
     }
     
-    private func savePhoto(withPhoto image: UIImage, withChangeRequest assetCollectionChangeRequest : PHAssetCollectionChangeRequest?) -> Bool {
+    fileprivate func savePhoto(withPhoto image: UIImage, withChangeRequest assetCollectionChangeRequest : PHAssetCollectionChangeRequest?) -> Bool {
         
         if assetCollectionChangeRequest == nil {
             return false
         }
         
         do {
-            try PHPhotoLibrary.sharedPhotoLibrary().performChangesAndWait {
-                let assetChangeRequest = PHAssetChangeRequest.creationRequestForAssetFromImage(image)
+            try PHPhotoLibrary.shared().performChangesAndWait {
+                let assetChangeRequest = PHAssetChangeRequest.creationRequestForAsset(from: image)
                 let assetPlaceHolder = assetChangeRequest.placeholderForCreatedAsset
-                assetCollectionChangeRequest?.addAssets([assetPlaceHolder!])
+                assetCollectionChangeRequest?.addAssets([assetPlaceHolder!] as NSArray)
             }
         } catch let error {
             print("saving photo error: \(error)")

@@ -25,16 +25,16 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
     @IBOutlet weak var locationText: UILabel!
     @IBOutlet weak var shouldShowOriginalImage: UISwitch!
     
-    @IBAction func showOriginalImage(sender: UISwitch) {
+    @IBAction func showOriginalImage(_ sender: UISwitch) {
         originalImageView.alpha = originalImageAlpha()
     }
     
     
-    let imageProcessQueue = NSOperationQueue()
+    let imageProcessQueue = OperationQueue()
     
     
     
-    @IBAction func sliderChanged(sender: UISlider) {
+    @IBAction func sliderChanged(_ sender: UISlider) {
     
         threshold.text = "\(Int(sender.value))"
         let sliderValue = Double(sender.value)
@@ -43,15 +43,15 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
         resultImageView.image = nil
         
         imageProcessQueue.cancelAllOperations()
-        let imageBlock = NSBlockOperation()
+        let imageBlock = BlockOperation()
 
         imageBlock.addExecutionBlock {
             [weak self] in
             if sliderValue == Double(sender.value) {
                 print("start: \(sender.value)");
-                if !imageBlock.cancelled {
+                if !imageBlock.isCancelled {
                     self?.imageProcessor.threshold = Double(sender.value)
-                    dispatch_sync(dispatch_get_main_queue()) {
+                    DispatchQueue.main.sync {
                         if sliderValue == Double(sender.value) {
                             self?.updateImage()
                         }
@@ -62,13 +62,13 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
         imageProcessQueue.addOperation(imageBlock)
     }
     
-    private func presentAlert(title: String, message: String) {
-        let Alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.Alert)
-        Alert.addAction(UIAlertAction(title: "OK", style: .Default, handler:  nil))
-        self.navigationController!.presentViewController(Alert, animated: true, completion: nil)
+    fileprivate func presentAlert(_ title: String, message: String) {
+        let Alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.alert)
+        Alert.addAction(UIAlertAction(title: "OK", style: .default, handler:  nil))
+        self.navigationController!.present(Alert, animated: true, completion: nil)
     }
     
-    private func presentSavingSuccessAlert() {
+    fileprivate func presentSavingSuccessAlert() {
         /*
         let sucessAlert = UIAlertController(title: "Saving", message: "Saving success!", preferredStyle: UIAlertControllerStyle.Alert)
         sucessAlert.addAction(UIAlertAction(title: "OK", style: .Default, handler:  nil))
@@ -78,7 +78,7 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
         presentAlert("Saving success!", message: "Check your saved photos in SVF album")
     }
     
-    private func presentSavingFailAlert() {
+    fileprivate func presentSavingFailAlert() {
         /*
         let failAlert = UIAlertController(title: "Saving", message: "Saving fail!", preferredStyle: UIAlertControllerStyle.Alert)
         failAlert.addAction(UIAlertAction(title: "OK", style: .Default, handler:  nil))
@@ -88,9 +88,9 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
         
     }
     
-    private func saveProjectToCoreData(to projectContent : ImageResult) -> Bool {
+    fileprivate func saveProjectToCoreData(to projectContent : ImageResult) -> Bool {
         var success = true
-        projectContent.managedObjectContext?.performBlockAndWait {
+        projectContent.managedObjectContext?.performAndWait {
             if !projectContent.saveProject(withProject: self.imageProject!) {
                 //self.presentSavingSuccessAlert()
                 success = false
@@ -99,7 +99,7 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
         return success
     }
     
-    private func savePhotoToAlbum() {
+    fileprivate func savePhotoToAlbum() {
         var success = true
         if !customPhotoAlbumManager.savePhoto(withPhoto: imageProject!.originalImage!) {
             success = false
@@ -118,7 +118,7 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
     }
     
     
-    private func saveProject(to projectContent : ImageResult ) {
+    fileprivate func saveProject(to projectContent : ImageResult ) {
         if saveProjectToCoreData(to: projectContent) {
             //presentSavingSuccessAlert()
             presentAlert("Saving success!", message: "Your project is saved.")
@@ -129,22 +129,22 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
         //savePhotoToAlbum()
     }
     
-    private func checkDuplicateAndSaveProject()
+    fileprivate func checkDuplicateAndSaveProject()
     {
         var projectContent : ImageResult?
         
-        managedObjectContext?.performBlockAndWait {
+        managedObjectContext?.performAndWait {
             [unowned self] in
             projectContent = ImageResult.getProject(withTitle: self.projectTitle.text!, inManagedObjectContext: self.managedObjectContext!)
         }
         
         if (projectContent != nil) {
-            let alert = UIAlertController(title: "Repeated Project", message: "There is already a project named \"\(self.projectTitle.text!)\". Do you want to override it?", preferredStyle: UIAlertControllerStyle.Alert)
-            alert.addAction( UIAlertAction(title: "OK",style: .Default, handler: { action in self.saveProject(to: projectContent!)}) )
-            alert.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: nil))
-            presentViewController(alert, animated: true, completion: nil)
+            let alert = UIAlertController(title: "Repeated Project", message: "There is already a project named \"\(self.projectTitle.text!)\". Do you want to override it?", preferredStyle: UIAlertControllerStyle.alert)
+            alert.addAction( UIAlertAction(title: "OK",style: .default, handler: { action in self.saveProject(to: projectContent!)}) )
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+            present(alert, animated: true, completion: nil)
         } else {
-            managedObjectContext?.performBlockAndWait {
+            managedObjectContext?.performAndWait {
                 [unowned self] in
                 projectContent = ImageResult.createProject(withTitle: self.projectTitle.text!, inManagedObjectContext: self.managedObjectContext!)!
             }
@@ -152,19 +152,19 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
         }
     }
     
-    private func getStringFromOptional(string: String?) -> String {
+    fileprivate func getStringFromOptional(_ string: String?) -> String {
         return string == nil ? "-" : string!
     }
     
-    private func getStringFromOptional(double : Double?) -> String {
+    fileprivate func getStringFromOptional(_ double : Double?) -> String {
         return double == nil ? "-" : String(format: "%.2f", double!)
     }
     
-    private func getStringFromOptional(double : CGFloat?) -> String {
+    fileprivate func getStringFromOptional(_ double : CGFloat?) -> String {
         return double == nil ? "-" : String(format: "%.2f", double!)
     }
     
-    private func getEmailBody() -> String
+    fileprivate func getEmailBody() -> String
     {
         
         let body =
@@ -178,7 +178,7 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
         return body
     }
     
-    private func sendProjectViaEmail() {
+    fileprivate func sendProjectViaEmail() {
         let mailComposerViewController = MFMailComposeViewController()
         //mailComposerViewController.delegate = self
         mailComposerViewController.mailComposeDelegate = self
@@ -199,54 +199,54 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
         }
         
         if MFMailComposeViewController.canSendMail() {
-            presentViewController(mailComposerViewController, animated: true, completion: nil)
+            present(mailComposerViewController, animated: true, completion: nil)
         } else {
             let mailAlert = UIAlertController(
                 title: "E-mail Error" ,
                 message: "E-mail cannot be sent!" ,
-                preferredStyle:  .Alert
+                preferredStyle:  .alert
             )
-            mailAlert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: nil) )
-            presentViewController(mailAlert, animated: true, completion: nil)
+            mailAlert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.cancel, handler: nil) )
+            present(mailAlert, animated: true, completion: nil)
         }
         
     }
     
-    func mailComposeController(controller: MFMailComposeViewController, didFinishWithResult result: MFMailComposeResult, error: NSError?) {
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
         
-        controller.dismissViewControllerAnimated(true, completion: nil)
+        controller.dismiss(animated: true, completion: nil)
     }
     
     
-    @IBAction func saveResult(sender: UIBarButtonItem) {
+    @IBAction func saveResult(_ sender: UIBarButtonItem) {
         let alert = UIAlertController(
             title: "Methods" ,
             message: "Choose the way you want to save this project" ,
-            preferredStyle:  .ActionSheet
+            preferredStyle:  .actionSheet
         )
         
         alert.addAction(
-            UIAlertAction(title:"Save images to library", style: UIAlertActionStyle.Default, handler: {(UIAlertAction) in self.savePhotoToAlbum()})
+            UIAlertAction(title:"Save images to library", style: UIAlertActionStyle.default, handler: {(UIAlertAction) in self.savePhotoToAlbum()})
         )
         
         alert.addAction(
-            UIAlertAction(title: "Save To Phone", style: UIAlertActionStyle.Default, handler:{ [weak self] (UIAlertAction) in
+            UIAlertAction(title: "Save To Phone", style: UIAlertActionStyle.default, handler:{ [weak self] (UIAlertAction) in
                 self?.checkDuplicateAndSaveProject()
                 } )
         )
         alert.addAction(
-            UIAlertAction(title: "Email", style: .Default, handler: { [weak self] (UIAlertAction) in self?.sendProjectViaEmail() } )
+            UIAlertAction(title: "Email", style: .default, handler: { [weak self] (UIAlertAction) in self?.sendProjectViaEmail() } )
         )
         
         
         alert.addAction(
-            UIAlertAction(title: "Cancel", style: .Cancel , handler: nil )
+            UIAlertAction(title: "Cancel", style: .cancel , handler: nil )
         )
-        presentViewController(alert, animated: true, completion: nil)
+        present(alert, animated: true, completion: nil)
     }
     
     var managedObjectContext : NSManagedObjectContext? =
-        (UIApplication.sharedApplication().delegate as? AppDelegate)?.managedObjectContext
+        (UIApplication.shared.delegate as? AppDelegate)?.managedObjectContext
     
     var imageProject : ImageProject? {
         didSet {
@@ -254,10 +254,10 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
         }
     }
     //private var originalImageAlpha : CGFloat = 1
-    private let imageProcessor = ImageProcessor()
-    private func originalImageAlpha() -> CGFloat {
+    fileprivate let imageProcessor = ImageProcessor()
+    fileprivate func originalImageAlpha() -> CGFloat {
         var alpha = CGFloat(1)
-        switch shouldShowOriginalImage.on {
+        switch shouldShowOriginalImage.isOn {
         case true:
             if imageProject?.edittedImage != nil {
                 alpha = 0.5
@@ -269,7 +269,7 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
         }
         return alpha
     }
-    private func updateImage() {
+    fileprivate func updateImage() {
         projectTitle.text = imageProject!.title
         originalImageView.image = imageProject!.originalImage
         originalImageView.alpha = originalImageAlpha()
@@ -284,7 +284,7 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
         }
     }
     
-    private func setParameters() {
+    fileprivate func setParameters() {
         headingText.text = getStringFromOptional(imageProject?.heading)
         //headingText.text = imageProject!.heading == nil ? "-" : "\(imageProject!.heading!)"
         
@@ -297,7 +297,7 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
         }
     }
     
-    private let customPhotoAlbumManager = CustomPhotoAlbumManager()
+    fileprivate let customPhotoAlbumManager = CustomPhotoAlbumManager()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -313,31 +313,31 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
         print("result vc view did load")
     }
     
-    func textFieldShouldReturn(textField: UITextField) -> Bool {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         projectTitle.resignFirstResponder()
         imageProject?.title = projectTitle.text
         return true
     }
     
     
-    @IBAction func processImage(sender: UIButton) {
+    @IBAction func processImage(_ sender: UIButton) {
         
         originalImageView.image = nil
         passImage()
     }
     
-    private func passImage() {
+    fileprivate func passImage() {
         
         spinner.startAnimating()
         if imageProcessor.inputProject == nil {
             if let passedProject = imageProject  {
-                dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) {
+                DispatchQueue.global(qos: DispatchQoS.QoSClass.userInitiated).async {
                     [weak weakSelf = self] in
                     if passedProject.originalImage == weakSelf!.imageProject!.originalImage {
                         weakSelf!.imageProcessor.inputProject = passedProject
                         //weakSelf!.imageProcessor.processWithDefaultThershold()
                         //weakSelf!.thresholdSlider.value = Float(weakSelf!.imageProcessor.threshold!)
-                        dispatch_sync(dispatch_get_main_queue()) {
+                        DispatchQueue.main.sync {
                             if passedProject.originalImage == weakSelf!.imageProject!.originalImage {
                                 weakSelf!.updateImage()
                             } else {
@@ -345,10 +345,10 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
                             }
                         }
                     } else {
-                        dispatch_sync(dispatch_get_main_queue()) {
+                        DispatchQueue.main.sync {
                             weakSelf!.spinner.stopAnimating()
                         }
-                        dispatch_sync(dispatch_get_main_queue()) {
+                        DispatchQueue.main.sync {
                             if passedProject.originalImage == weakSelf!.imageProject!.originalImage {
                                 weakSelf!.updateImage()
                             } else {
@@ -359,11 +359,11 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
                 }
             }
         } else {
-            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0))
+            DispatchQueue.global(qos: DispatchQoS.QoSClass.userInitiated).async
             {
                 [weak weakSelf = self] in
                 weakSelf?.imageProcessor.processWithDefaultThershold()
-                dispatch_sync(dispatch_get_main_queue()) {
+                DispatchQueue.main.sync {
                     weakSelf!.updateImage()
                 }
             }

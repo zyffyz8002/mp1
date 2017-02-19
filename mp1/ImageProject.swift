@@ -39,12 +39,19 @@ class ImageProject {
         }
     }
     
-    private func clearEdittedImageInformation() {
+    fileprivate func clearEdittedImageInformation() {
         edittedImage = nil
         threshold = nil
         autoThreshold = nil
         skyPoints = nil
         nonSkyPoints = nil
+    }
+    
+    func updateGeoInfo() {
+        latitude = MotionAndLocationManager.latitude
+        longtidude = MotionAndLocationManager.longtitude
+        heading = MotionAndLocationManager.heading
+        leveler = LevelerViewController.getLevelInformationFromMotionData(MotionAndLocationManager.motionData)
     }
 }
 

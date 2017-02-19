@@ -11,95 +11,43 @@ import CoreLocation
 import UIKit
 import CoreMotion
 
-class LevelerUIImagePickerController : UIImagePickerController, CLLocationManagerDelegate {
+class LevelerUIImagePickerController : UIImagePickerController, CLLocationManagerDelegate
+{
+    var levelerViewController = LevelerViewController()
     
     static var viewNumber = 0
-    override func shouldAutorotate() -> Bool {
+    override var shouldAutorotate : Bool {
         return false
     }
     
-    override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
-        return UIInterfaceOrientationMask.Portrait
-    }
-    private var levelerView : LevelerView?
-    
-    var motionManager : CMMotionManager?
-    var locationManager : CLLocationManager?
-    //var locationManagerDirection : CLLocationManager?
-    
-    
-    private func startToCheckAttitude() {
-        let queue = NSOperationQueue()
-        if motionManager != nil {
-            if motionManager!.deviceMotionAvailable {
-                motionManager!.deviceMotionUpdateInterval = LevelerParameters.UpdateInterval
-                motionManager!.startDeviceMotionUpdatesToQueue(queue)
-                {
-                    [unowned weakSelf = self](data, error) in
-                    
-                    guard let motionData = data else {return }
-                    var xoffset = CGFloat(motionData.attitude.roll)
-                    let yoffset = CGFloat(motionData.attitude.pitch) * LevelerParameters.Sensitivity
-                    
-                    xoffset = min(abs(xoffset), 3-abs(xoffset)) * xoffset / abs(xoffset) * LevelerParameters.Sensitivity
-                    
-                    NSOperationQueue.mainQueue().addOperationWithBlock {
-                        weakSelf.levelerView!.offset = CGPoint(x: xoffset, y:yoffset)
-                    }
-                }
-            }
-        }
+    override var supportedInterfaceOrientations : UIInterfaceOrientationMask {
+        return UIInterfaceOrientationMask.portrait
     }
     
     func addLevelerViewToOverlayView() {
         if self.cameraOverlayView != nil {
-            for subview in (cameraOverlayView?.subviews)! {
-                levelerView = subview as? LevelerView
-                if levelerView != nil {
-                    levelerView?.shouldDrawBackground = true
-                    break
-                }
-            }
+            levelerViewController.view.frame = CGRect(origin: CGPoint(x: 100, y: 0), size: CGSize(width: LevelerParameters.maxRange, height: LevelerParameters.maxRange))
+            //levelerViewController
+            self.cameraOverlayView!.addSubview(levelerViewController.view)
+            levelerViewController.levelerView.shouldDrawBackground = true
+            //levelerViewController.addLevelerViewToViewWithRect(toView: self.cameraOverlayView!, withRect: CGRect(origin: CGPoint(x: 100, y: 0), size: CGSize(width: LevelerParameters.maxRange, height: LevelerParameters.maxRange)))
+            //levelerViewController.levelerView.shouldDrawBackground = true
         }
-        startUpdateLeveler()
     }
-    override func viewDidDisappear(animated: Bool) {
+    
+    override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        stopUpdateLeveler()
+        //levelerViewController.stopUpdateLeveler()
     }
     
-    private func updateLocation() {
-        if locationManager != nil {
-            self.locationManager!.delegate = self
-            self.locationManager!.desiredAccuracy = kCLLocationAccuracyBest
-            self.locationManager!.requestWhenInUseAuthorization()
-            self.locationManager!.startUpdatingHeading()
-        }
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        levelerViewController.stopUpdateLeveler()
     }
     
-    func startUpdateLeveler() {
-        startToCheckAttitude()
-        updateLocation()
-    }
-    
-    func stopUpdateLeveler() {
-        motionManager?.stopGyroUpdates()
-        locationManager?.stopUpdatingHeading()
-        motionManager?.stopDeviceMotionUpdates()
-    }
-    
-    func locationManager(manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
-        let h2 = newHeading.trueHeading // will be -1 if we have no location info
-        
-        NSOperationQueue.mainQueue().addOperationWithBlock {
-            
-            [weak weakSelf = self] in
-            if h2 > 0 {
-                if weakSelf?.levelerView != nil {
-                    weakSelf?.levelerView!.direction = CGFloat(h2)
-                }
-            }
-        }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        levelerViewController.startUpdateLeveler(nil)
     }
     
 }

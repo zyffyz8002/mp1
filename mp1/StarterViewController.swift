@@ -1,27 +1,18 @@
 //
-//  CameraOverlayViewController.swift
+//  StarterViewController.swift
 //  mp1
 //
-//  Created by Yifan on 6/7/16.
+//  Created by Yifan on 7/14/16.
 //
 //
 
 import UIKit
-import CoreMotion
 
-class CameraOverlayViewController: UIViewController {
- 
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        //addLevelerView()
-    }
-    
-
+class StarterViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        //addLevelerView()
+        navigationItem.title = GeneralConstant.APPName
         // Do any additional setup after loading the view.
     }
 
@@ -29,7 +20,7 @@ class CameraOverlayViewController: UIViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
+    
 
     /*
     // MARK: - Navigation
@@ -41,4 +32,8 @@ class CameraOverlayViewController: UIViewController {
     }
     */
 
+}
+
+struct GeneralConstant {
+    static let APPName = "Sky View"
 }

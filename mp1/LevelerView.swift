@@ -13,7 +13,11 @@ import UIKit
 class LevelerView: UIView {
     
 
-    var lineWidth = CGFloat(1.0)
+    var lineWidth = CGFloat(1.0) {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
     
     var offset = CGPoint(x: 0, y:0) {
         didSet {
@@ -27,12 +31,20 @@ class LevelerView: UIView {
         }
     }
     
+    fileprivate var compassRadius = CGFloat(LevelerParameters.maxRange / 2)
+        
     var shouldDrawBackground = false
     
-    private func drawCircle(center: CGPoint, radius: CGFloat, fill: Bool) -> UIBezierPath {
+    //var scale = CGFloat(1) {
+    //    didSet {
+    //        setNeedsDisplay()
+    //    }
+    //}
+    
+    fileprivate func drawCircle(_ center: CGPoint, radius: CGFloat, fill: Bool) -> UIBezierPath {
         let path = UIBezierPath()
         
-        path.addArcWithCenter(center, radius: radius, startAngle: 0, endAngle: CGFloat(M_PI*2), clockwise: true)
+        path.addArc(withCenter: center, radius: radius, startAngle: 0, endAngle: CGFloat(M_PI*2), clockwise: true)
         path.lineWidth = lineWidth
         if fill {
             path.fill()
@@ -41,42 +53,120 @@ class LevelerView: UIView {
         return path
     }
     
-    private func drawALine(pointA pointA: CGPoint, pointB: CGPoint) -> UIBezierPath {
+    fileprivate func drawALine(pointA: CGPoint, pointB: CGPoint) -> UIBezierPath {
         let path = UIBezierPath()
-        path.moveToPoint(pointA)
-        path.addLineToPoint(pointB)
+        path.move(to: pointA)
+        path.addLine(to: pointB)
         path.lineWidth = lineWidth
         
         return path
     }
     
-    private func rad(direction : CGFloat) -> CGFloat {
+    fileprivate func rad(_ direction : CGFloat) -> CGFloat {
         return (direction / 180 * CGFloat(M_PI))
     }
     
-    private func drawBackground() -> UIBezierPath {
+    fileprivate func drawBackground() -> UIBezierPath {
         let path = UIBezierPath()
         
-        path.moveToPoint(bounds.origin)
-        path.addLineToPoint(CGPoint(x: 0, y: bounds.height))
-        path.addLineToPoint(CGPoint(x: bounds.width, y: bounds.height))
-        path.addLineToPoint(CGPoint(x: bounds.width, y: 0))
-        path.closePath()
+        
+        path.move(to: bounds.origin)
+        path.addLine(to: CGPoint(x: 0, y: bounds.height))
+        path.addLine(to: CGPoint(x: bounds.width, y: bounds.height))
+        path.addLine(to: CGPoint(x: bounds.width, y: 0))
+        path.close()
         path.fill()
         
         return path
     }
-
-    override func drawRect(rect: CGRect) {
-        if shouldDrawBackground {
-            UIColor.blackColor().set()
-            drawBackground().stroke()
+    
+    fileprivate var boundsCenter : CGPoint {
+        get {
+            return CGPoint(x: bounds.width / 2, y: bounds.height / 2)
         }
-        UIColor.blueColor().set()
-        drawCircle(CGPoint(x: bounds.width/2, y: bounds.height/2), radius: LevelerParameters.Radius, fill: false).stroke()
-        drawCircle(CGPoint(x: bounds.width/2 + offset.x, y: bounds.height/2 + offset.y), radius: CGFloat(2), fill: true).stroke()
-        drawALine(pointA: CGPoint(x:bounds.width / 2, y: CGFloat(0)), pointB: CGPoint(x:bounds.width / 2, y: CGFloat(10))).stroke()
-        drawALine(pointA: CGPoint(x:bounds.width / 2, y: bounds.height / 2), pointB: CGPoint(x:bounds.width/2 + sin(-rad(direction)) * LevelerParameters.MaxRange , y: bounds.height/2 - cos(-rad(direction)) * LevelerParameters.MaxRange / 2 )).stroke()
     }
 
+    override func draw(_ rect: CGRect) {
+        if shouldDrawBackground {
+            UIColor.black.set()
+            drawBackground().stroke()
+        }
+        UIColor.blue.set()
+        backgroundColor = UIColor.clear
+        
+        let scale = min(bounds.height, bounds.width) * 0.45 /  compassRadius
+        
+        drawCircle(
+            boundsCenter,
+            radius: compassRadius * scale, fill: false
+        ).stroke()
+        
+        drawCircle(
+            boundsCenter,
+            radius: LevelerParameters.thresholdRadius * scale, fill: false
+        ).stroke()
+        
+        
+        drawCircle(
+            CGPoint(x: bounds.width/2 + offset.x * scale, y: bounds.height/2 + offset.y * scale),
+            radius: LevelerParameters.pointRadius * scale, fill: true
+        ).stroke()
+        
+        
+        let markerYStart = bounds.height / 2 - compassRadius * scale
+        drawALine(
+            pointA: CGPoint(x:bounds.width / 2, y: markerYStart ),
+            pointB: CGPoint(x:bounds.width / 2, y: markerYStart + LevelerParameters.northMakerLength * pow(scale, 0.5))
+        ).stroke()
+        
+        drawALine(
+            pointA: CGPoint(x:bounds.width / 2, y: bounds.height / 2),
+            pointB: CGPoint(
+                x: bounds.width/2 + sin(-rad(direction)) * compassRadius * scale,
+                y: bounds.height/2 - cos(-rad(direction)) * compassRadius * scale
+            )
+        ).stroke()
+    }
+    
+    
+    
 }
+
+struct LevelerParameters {
+    
+    static let sensitivity : CGFloat = 35 / 1.5
+    static let updateInterval : Double = 0.1
+    
+    
+    static let maxRange : CGFloat = 70
+    static let thresholdRadius : CGFloat = 35 / 1.5 * 0.15
+    static let northMakerLength : CGFloat = 10
+    static let pointRadius : CGFloat = 1
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

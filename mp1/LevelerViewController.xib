@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_0" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11762"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="LevelerViewController" customModule="mp1" customModuleProvider="target">
+            <connections>
+                <outlet property="levelerView" destination="agW-5p-kle" id="xTB-Pp-Ok2"/>
+                <outlet property="view" destination="iN0-l3-epB" id="Azz-BS-eaw"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="redraw" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="agW-5p-kle" customClass="LevelerView" customModule="mp1" customModuleProvider="target">
+                    <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                    <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+                </view>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstAttribute="bottom" secondItem="agW-5p-kle" secondAttribute="bottom" id="Mac-Xa-mzk"/>
+                <constraint firstItem="agW-5p-kle" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="Xqz-Lg-ajT"/>
+                <constraint firstItem="agW-5p-kle" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="lQe-op-JEa"/>
+                <constraint firstAttribute="trailing" secondItem="agW-5p-kle" secondAttribute="trailing" id="qdf-V8-bhO"/>
+            </constraints>
+        </view>
+    </objects>
+</document>

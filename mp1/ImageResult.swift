@@ -15,10 +15,10 @@ class ImageResult: NSManagedObject
     
     class func getProject(withTitle title: String, inManagedObjectContext context: NSManagedObjectContext) -> ImageResult?
     {
-        let request = NSFetchRequest(entityName: "ImageResult")
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "ImageResult")
         request.predicate = NSPredicate(format: "title = %@", title)
         do {
-            let results = try context.executeFetchRequest(request)
+            let results = try context.fetch(request)
             if let imageResult = results.first as? ImageResult {
                 return imageResult
             }
@@ -31,7 +31,7 @@ class ImageResult: NSManagedObject
 
     class func createProject(withTitle title :String, inManagedObjectContext context: NSManagedObjectContext) -> ImageResult?
     {
-        if let imageResult = NSEntityDescription.insertNewObjectForEntityForName("ImageResult", inManagedObjectContext: context) as? ImageResult
+        if let imageResult = NSEntityDescription.insertNewObject(forEntityName: "ImageResult", into: context) as? ImageResult
         {
             imageResult.title = title
             return imageResult
@@ -44,17 +44,17 @@ class ImageResult: NSManagedObject
         title = project.title
         originalImageData = UIImagePNGRepresentation(project.originalImage!)
         edittedImageData = UIImagePNGRepresentation(project.edittedImage!)
-        threshold = project.threshold
-        latitude = project.latitude
-        longtitude = project.longtidude
-        heading = project.heading
-        autoThreshold = project.autoThreshold
-        isThresholdAutoDecided = project.isThresholdAutoDecided
-        leveldx = project.leveler?.x
-        leveldy = project.leveler?.y
-        skypoints = project.skyPoints
-        nonSkypoints = project.nonSkyPoints
-        lastSavedTime = NSDate()
+        threshold = project.threshold as NSNumber?
+        latitude = project.latitude as NSNumber?
+        longtitude = project.longtidude as NSNumber?
+        heading = project.heading as NSNumber?
+        autoThreshold = project.autoThreshold as NSNumber?
+        isThresholdAutoDecided = project.isThresholdAutoDecided as NSNumber?
+        leveldx = project.leveler?.x as NSNumber?
+        leveldy = project.leveler?.y as NSNumber?
+        skypoints = project.skyPoints as NSNumber?
+        nonSkypoints = project.nonSkyPoints as NSNumber?
+        lastSavedTime = Date()
         do {
             try managedObjectContext?.save()
         } catch let error {
@@ -68,8 +68,8 @@ class ImageResult: NSManagedObject
         let project = ImageProject()
         
         project.title = title
-        project.originalImage = UIImage(data:(originalImageData)!)
-        project.edittedImage = UIImage(data:(edittedImageData)!)
+        project.originalImage = UIImage(data:(originalImageData)! as Data)
+        project.edittedImage = UIImage(data:(edittedImageData)! as Data)
         project.threshold = threshold?.doubleValue
         project.latitude = latitude?.doubleValue
         project.longtidude = longtitude?.doubleValue
