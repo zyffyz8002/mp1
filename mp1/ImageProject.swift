@@ -28,7 +28,6 @@ class ImageProject {
     var skyPoints : Double?
     var nonSkyPoints : Double?
     
-    
     var skyViewFactor : Double? {
         get {
             if (skyPoints != nil && nonSkyPoints != nil) {

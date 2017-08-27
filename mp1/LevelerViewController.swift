@@ -19,6 +19,7 @@ class LevelerViewController : UIViewController, CLLocationManagerDelegate {
     //@IBOutlet var levelerView: LevelerView!
     //@IBOutlet var levelerView: LevelerView!
     //let levelerView = LevelerView()
+    
     @IBOutlet weak var levelerView: LevelerView!
     
     override func viewDidLoad() {

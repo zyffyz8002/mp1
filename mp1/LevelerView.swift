@@ -11,7 +11,6 @@ import UIKit
 @IBDesignable
 
 class LevelerView: UIView {
-    
 
     var lineWidth = CGFloat(1.0) {
         didSet {
@@ -44,7 +43,7 @@ class LevelerView: UIView {
     fileprivate func drawCircle(_ center: CGPoint, radius: CGFloat, fill: Bool) -> UIBezierPath {
         let path = UIBezierPath()
         
-        path.addArc(withCenter: center, radius: radius, startAngle: 0, endAngle: CGFloat(M_PI*2), clockwise: true)
+        path.addArc(withCenter: center, radius: radius, startAngle: 0, endAngle: CGFloat(Double.pi*2), clockwise: true)
         path.lineWidth = lineWidth
         if fill {
             path.fill()
@@ -63,7 +62,7 @@ class LevelerView: UIView {
     }
     
     fileprivate func rad(_ direction : CGFloat) -> CGFloat {
-        return (direction / 180 * CGFloat(M_PI))
+        return (direction / 180 * CGFloat(Double.pi))
     }
     
     fileprivate func drawBackground() -> UIBezierPath {
@@ -127,17 +126,12 @@ class LevelerView: UIView {
             )
         ).stroke()
     }
-    
-    
-    
 }
 
 struct LevelerParameters {
     
     static let sensitivity : CGFloat = 35 / 1.5
     static let updateInterval : Double = 0.1
-    
-    
     static let maxRange : CGFloat = 70
     static let thresholdRadius : CGFloat = 35 / 1.5 * 0.15
     static let northMakerLength : CGFloat = 10

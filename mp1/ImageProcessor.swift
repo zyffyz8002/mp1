@@ -18,9 +18,8 @@ class ImageProcessor
             skyPoints = inputProject?.skyPoints
             nonSkyPoints = inputProject?.nonSkyPoints
             
-            
             if inputProject?.originalImage != nil {
-                getNewPixelsCount(colorFilter: averageRGB)
+                getNewPixelsCount(colorFilter: useOnlyBlueColor)
             }
             
             if inputProject?.edittedImage == nil {
@@ -50,7 +49,6 @@ class ImageProcessor
                 processImage(colorFilter: averageRGB)
             }
         }
-
     }
     
     /*
@@ -65,6 +63,7 @@ class ImageProcessor
     
     func processWithDefaultThershold() {
         if inputProject?.autoThreshold == nil {
+            
             inputProject?.autoThreshold = clusterRidlerAlgorithm(colorThreshold: Constant.clusterRidlerInitValue)
             
         }
@@ -74,12 +73,42 @@ class ImageProcessor
         
     }
     
+    private func Otsus(start: Int, end: Int) {
+        let newCount = histogramCounts[start..<end]
+        let total = Double(newCount.reduce(0, +))
+        var sumB  = 0.0
+        var wB = 0.0
+        var wF = 0.0
+        var maximum = 0.0
+        var sum1 = 0.0
+        var mF  = 0.0
+        
+        for ii in start ..< end {
+            wB = wB + Double(newCount[ii-start])
+            wF = total - wB
+            if (wB != 0 ) && (wF != 0) {
+                sumB = sumB + Double(ii * histogramCounts[ii])
+                mF = (sum1 - sumB) / wF
+                
+            }
+            
+        }
+        
+        
+        
+    }
+    
     private struct Constant {
         static var clusterRidlerInitValue = 128.0
     }
     
     //private var edittedImage : UIImage?
     //private var combinedImage : UIImage?
+    private var globalUpperThreshold : Double?
+    private var globalLowerThreshold : Double?
+    private var histogramCounts = [Int](repeating: 0, count: 257)
+    private var radious: Int?
+    
     private var skyPoints : Double?
     /*{
         get {
@@ -101,9 +130,9 @@ class ImageProcessor
     }
      */
     
-    
     private var filteredPixelsCount : [Double]?
     private var colorThreshold = 128.0
+    
     //typealias selectedMethod = averageRGB
     //var selectedMethod = averageRGB
     
@@ -159,14 +188,21 @@ class ImageProcessor
             let uncasteddata = UnsafeRawPointer(context!.data)
             let pixelBuffer = uncasteddata?.assumingMemoryBound(to: UInt32.self)
             var currentPixel = pixelBuffer!
-            filteredPixelsCount = [Double](repeating: 0.0, count: width * height)
+            //filteredPixelsCount = [Double](repeating: 0.0, count: width * height)
+            
+            radious = min(height, width)
             
             for  h in 0..<Int(height) {
                 for  w in 0..<Int(width) {
                     let pixel = currentPixel.pointee
                     //let pixel = currentPixel
                     let brightness = colorFilter(Double(getRedComponent(color: pixel)) , Double(getBlueComponent(color:pixel)) , Double(getGreenComponent(color:pixel)) )
-                    filteredPixelsCount![h * width + w] = brightness
+                    //filteredPixelsCount![h * width + w] = brightness
+                    let xx = abs(h - height / 2)
+                    let yy = abs(w - width / 2)
+                    if (pow(Double(xx), 2) + pow(Double(yy), 2) < pow(Double(radious!), 2)) {
+                        histogramCounts[Int(brightness) + 1] = histogramCounts[Int(brightness) + 1] + 1
+                    }
                     currentPixel = currentPixel + 1
                 }
             }
@@ -187,8 +223,14 @@ class ImageProcessor
     }
     
     private var useOnlyBlueColor = { (red: Double,  green: Double, blue: Double) -> Double  in
-        
-        return blue
+        var correctedBlue = 255.0 * pow((blue / 255.0), 0.45)
+        if correctedBlue > 255 {
+            correctedBlue = 255
+        }
+        if correctedBlue < 0 {
+            correctedBlue = 0;
+        }
+        return correctedBlue
     }
     
     private func initAllStatus() {
@@ -202,8 +244,6 @@ class ImageProcessor
     private func processOriginalImage(colorFilter: (Double, Double, Double) -> Double) {
        // var start = CACurrentMediaTime()
 
-        
-        
         let inputCGImage     = inputProject!.originalImage!.cgImage
         let colorSpace       = CGColorSpaceCreateDeviceRGB()
         let width            = inputCGImage!.width
@@ -296,6 +336,7 @@ class ImageProcessor
         
     }
     */
+    
     private func getRedComponent(color: UInt32) -> UInt8 {
         let color = UInt8(color & 0xFF)
         return color

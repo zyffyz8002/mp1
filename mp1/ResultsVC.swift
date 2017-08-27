@@ -209,7 +209,6 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
             mailAlert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.cancel, handler: nil) )
             present(mailAlert, animated: true, completion: nil)
         }
-        
     }
     
     func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
@@ -269,6 +268,7 @@ class ResultsVC: UIViewController, UITextFieldDelegate, MFMailComposeViewControl
         }
         return alpha
     }
+    
     fileprivate func updateImage() {
         projectTitle.text = imageProject!.title
         originalImageView.image = imageProject!.originalImage
