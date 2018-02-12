@@ -14,9 +14,28 @@
 		80313D251C1AB7C600C14F99 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 80313D231C1AB7C600C14F99 /* Main.storyboard */; };
 		80313D281C1AB7C600C14F99 /* mp1.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 80313D261C1AB7C600C14F99 /* mp1.xcdatamodeld */; };
 		80313D2A1C1AB7C600C14F99 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 80313D291C1AB7C600C14F99 /* Assets.xcassets */; };
-		80313D2D1C1AB7C600C14F99 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 80313D2B1C1AB7C600C14F99 /* LaunchScreen.storyboard */; };
 		80313D381C1AB7C600C14F99 /* mp1Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80313D371C1AB7C600C14F99 /* mp1Tests.swift */; };
 		80313D431C1AB7C600C14F99 /* mp1UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80313D421C1AB7C600C14F99 /* mp1UITests.swift */; };
+		DD02359E1D05161400F1574C /* ImageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD02359D1D05161400F1574C /* ImageProcessor.swift */; };
+		DD0953BD1D36B75800FDB30D /* LevelerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0953BC1D36B75800FDB30D /* LevelerViewController.swift */; };
+		DD0953BF1D38082600FDB30D /* MotionAndLocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0953BE1D38082600FDB30D /* MotionAndLocationManager.swift */; };
+		DD0953C11D38272D00FDB30D /* CheckLevelerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0953C01D38272D00FDB30D /* CheckLevelerViewController.swift */; };
+		DD0953C31D38282100FDB30D /* StarterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0953C21D38282100FDB30D /* StarterViewController.swift */; };
+		DD0953C71D398AB300FDB30D /* LevelerViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = DD0953C61D398AB300FDB30D /* LevelerViewController.xib */; };
+		DD55F02F1D26DA7C00719719 /* LevelerUIImagePickerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD55F02E1D26DA7C00719719 /* LevelerUIImagePickerController.swift */; };
+		DD55F0311D26DBEF00719719 /* ImageProject.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD55F0301D26DBEF00719719 /* ImageProject.swift */; };
+		DD6EC97E1D26019A00830939 /* ProjectHistoryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD6EC97D1D26019A00830939 /* ProjectHistoryTableViewController.swift */; };
+		DD6EC9801D26062000830939 /* CoreDataTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD6EC97F1D26062000830939 /* CoreDataTableViewController.swift */; };
+		DD736C691D2DF9AF0009741C /* CaptureOrLibraryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD736C681D2DF9AF0009741C /* CaptureOrLibraryViewController.swift */; };
+		DD736C6B1D2E0A400009741C /* ParametersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD736C6A1D2E0A400009741C /* ParametersViewController.swift */; };
+		DD8636B71D07B57D008AFB26 /* CameraOverlayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD8636B51D07B57D008AFB26 /* CameraOverlayViewController.swift */; };
+		DD8636B81D07B57D008AFB26 /* CameraOverlayViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = DD8636B61D07B57D008AFB26 /* CameraOverlayViewController.xib */; };
+		DD8636BA1D07B5A2008AFB26 /* CameraOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD8636B91D07B5A2008AFB26 /* CameraOverlayView.swift */; };
+		DDD971BC1D356D2200312A31 /* CustomPhotoAlbumManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD971BB1D356D2200312A31 /* CustomPhotoAlbumManager.swift */; };
+		DDE0F3F31D1B2033000B81EB /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = DDE0F3F11D1B2033000B81EB /* Model.xcdatamodeld */; };
+		DDE0F3F61D1B2256000B81EB /* ImageResult+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDE0F3F41D1B2256000B81EB /* ImageResult+CoreDataProperties.swift */; };
+		DDE0F3F71D1B2256000B81EB /* ImageResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDE0F3F51D1B2256000B81EB /* ImageResult.swift */; };
+		DDFEA9781D0904E9005B94F0 /* LevelerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDFEA9771D0904E9005B94F0 /* LevelerView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,7 +64,6 @@
 		80313D241C1AB7C600C14F99 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		80313D271C1AB7C600C14F99 /* mp1.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = mp1.xcdatamodel; sourceTree = "<group>"; };
 		80313D291C1AB7C600C14F99 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		80313D2C1C1AB7C600C14F99 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		80313D2E1C1AB7C600C14F99 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		80313D331C1AB7C600C14F99 /* mp1Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = mp1Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		80313D371C1AB7C600C14F99 /* mp1Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mp1Tests.swift; sourceTree = "<group>"; };
@@ -53,6 +71,26 @@
 		80313D3E1C1AB7C600C14F99 /* mp1UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = mp1UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		80313D421C1AB7C600C14F99 /* mp1UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mp1UITests.swift; sourceTree = "<group>"; };
 		80313D441C1AB7C600C14F99 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DD02359D1D05161400F1574C /* ImageProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageProcessor.swift; sourceTree = "<group>"; };
+		DD0953BC1D36B75800FDB30D /* LevelerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LevelerViewController.swift; sourceTree = "<group>"; };
+		DD0953BE1D38082600FDB30D /* MotionAndLocationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MotionAndLocationManager.swift; sourceTree = "<group>"; };
+		DD0953C01D38272D00FDB30D /* CheckLevelerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckLevelerViewController.swift; sourceTree = "<group>"; };
+		DD0953C21D38282100FDB30D /* StarterViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StarterViewController.swift; sourceTree = "<group>"; };
+		DD0953C61D398AB300FDB30D /* LevelerViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LevelerViewController.xib; sourceTree = "<group>"; };
+		DD55F02E1D26DA7C00719719 /* LevelerUIImagePickerController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LevelerUIImagePickerController.swift; sourceTree = "<group>"; };
+		DD55F0301D26DBEF00719719 /* ImageProject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageProject.swift; sourceTree = "<group>"; };
+		DD6EC97D1D26019A00830939 /* ProjectHistoryTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectHistoryTableViewController.swift; sourceTree = "<group>"; };
+		DD6EC97F1D26062000830939 /* CoreDataTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataTableViewController.swift; sourceTree = "<group>"; };
+		DD736C681D2DF9AF0009741C /* CaptureOrLibraryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptureOrLibraryViewController.swift; sourceTree = "<group>"; };
+		DD736C6A1D2E0A400009741C /* ParametersViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParametersViewController.swift; sourceTree = "<group>"; };
+		DD8636B51D07B57D008AFB26 /* CameraOverlayViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraOverlayViewController.swift; sourceTree = "<group>"; };
+		DD8636B61D07B57D008AFB26 /* CameraOverlayViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CameraOverlayViewController.xib; sourceTree = "<group>"; };
+		DD8636B91D07B5A2008AFB26 /* CameraOverlayView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraOverlayView.swift; sourceTree = "<group>"; };
+		DDD971BB1D356D2200312A31 /* CustomPhotoAlbumManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomPhotoAlbumManager.swift; sourceTree = "<group>"; };
+		DDE0F3F21D1B2033000B81EB /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
+		DDE0F3F41D1B2256000B81EB /* ImageResult+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ImageResult+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		DDE0F3F51D1B2256000B81EB /* ImageResult.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageResult.swift; sourceTree = "<group>"; };
+		DDFEA9771D0904E9005B94F0 /* LevelerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LevelerView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,10 +143,27 @@
 		80313D1E1C1AB7C600C14F99 /* mp1 */ = {
 			isa = PBXGroup;
 			children = (
+				DD736C681D2DF9AF0009741C /* CaptureOrLibraryViewController.swift */,
+				DD736C6A1D2E0A400009741C /* ParametersViewController.swift */,
+				DD8636B51D07B57D008AFB26 /* CameraOverlayViewController.swift */,
+				DD8636B61D07B57D008AFB26 /* CameraOverlayViewController.xib */,
+				DD8636B91D07B5A2008AFB26 /* CameraOverlayView.swift */,
 				80313D211C1AB7C600C14F99 /* InformationViewController.swift */,
+				DD55F02E1D26DA7C00719719 /* LevelerUIImagePickerController.swift */,
+				DDFEA9771D0904E9005B94F0 /* LevelerView.swift */,
+				DD0953C01D38272D00FDB30D /* CheckLevelerViewController.swift */,
+				DD0953BC1D36B75800FDB30D /* LevelerViewController.swift */,
+				DD0953C61D398AB300FDB30D /* LevelerViewController.xib */,
+				DD55F0301D26DBEF00719719 /* ImageProject.swift */,
+				DD02359D1D05161400F1574C /* ImageProcessor.swift */,
+				DD6EC97F1D26062000830939 /* CoreDataTableViewController.swift */,
 				80313D231C1AB7C600C14F99 /* Main.storyboard */,
+				DD0953C21D38282100FDB30D /* StarterViewController.swift */,
+				DD6EC97D1D26019A00830939 /* ProjectHistoryTableViewController.swift */,
 				8023BD181C35393200D52645 /* ResultsVC.swift */,
-				80313D2B1C1AB7C600C14F99 /* LaunchScreen.storyboard */,
+				DDD971BB1D356D2200312A31 /* CustomPhotoAlbumManager.swift */,
+				DD0953BE1D38082600FDB30D /* MotionAndLocationManager.swift */,
+				DDE0F3F81D1B22DA000B81EB /* CoreData */,
 				DDDF84001D03A62C003E0840 /* Supportinf files */,
 			);
 			path = mp1;
@@ -141,6 +196,16 @@
 				80313D261C1AB7C600C14F99 /* mp1.xcdatamodeld */,
 			);
 			name = "Supportinf files";
+			sourceTree = "<group>";
+		};
+		DDE0F3F81D1B22DA000B81EB /* CoreData */ = {
+			isa = PBXGroup;
+			children = (
+				DDE0F3F41D1B2256000B81EB /* ImageResult+CoreDataProperties.swift */,
+				DDE0F3F51D1B2256000B81EB /* ImageResult.swift */,
+				DDE0F3F11D1B2033000B81EB /* Model.xcdatamodeld */,
+			);
+			name = CoreData;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -206,18 +271,21 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0720;
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 0820;
 				TargetAttributes = {
 					80313D1B1C1AB7C600C14F99 = {
 						CreatedOnToolsVersion = 7.2;
 						DevelopmentTeam = CY28H8F7X8;
+						LastSwiftMigration = 0820;
 					};
 					80313D321C1AB7C600C14F99 = {
 						CreatedOnToolsVersion = 7.2;
+						LastSwiftMigration = 0820;
 						TestTargetID = 80313D1B1C1AB7C600C14F99;
 					};
 					80313D3D1C1AB7C600C14F99 = {
 						CreatedOnToolsVersion = 7.2;
+						LastSwiftMigration = 0820;
 						TestTargetID = 80313D1B1C1AB7C600C14F99;
 					};
 				};
@@ -247,9 +315,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				80313D2D1C1AB7C600C14F99 /* LaunchScreen.storyboard in Resources */,
+				DD0953C71D398AB300FDB30D /* LevelerViewController.xib in Resources */,
 				80313D2A1C1AB7C600C14F99 /* Assets.xcassets in Resources */,
 				80313D251C1AB7C600C14F99 /* Main.storyboard in Resources */,
+				DD8636B81D07B57D008AFB26 /* CameraOverlayViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -275,9 +344,27 @@
 			buildActionMask = 2147483647;
 			files = (
 				80313D221C1AB7C600C14F99 /* InformationViewController.swift in Sources */,
+				DDFEA9781D0904E9005B94F0 /* LevelerView.swift in Sources */,
+				DDE0F3F61D1B2256000B81EB /* ImageResult+CoreDataProperties.swift in Sources */,
 				8023BD191C35393200D52645 /* ResultsVC.swift in Sources */,
+				DD8636B71D07B57D008AFB26 /* CameraOverlayViewController.swift in Sources */,
+				DD8636BA1D07B5A2008AFB26 /* CameraOverlayView.swift in Sources */,
+				DD0953C11D38272D00FDB30D /* CheckLevelerViewController.swift in Sources */,
+				DD6EC97E1D26019A00830939 /* ProjectHistoryTableViewController.swift in Sources */,
+				DD736C6B1D2E0A400009741C /* ParametersViewController.swift in Sources */,
+				DDE0F3F71D1B2256000B81EB /* ImageResult.swift in Sources */,
+				DD736C691D2DF9AF0009741C /* CaptureOrLibraryViewController.swift in Sources */,
+				DDE0F3F31D1B2033000B81EB /* Model.xcdatamodeld in Sources */,
+				DD0953C31D38282100FDB30D /* StarterViewController.swift in Sources */,
+				DD0953BD1D36B75800FDB30D /* LevelerViewController.swift in Sources */,
+				DD55F0311D26DBEF00719719 /* ImageProject.swift in Sources */,
+				DD02359E1D05161400F1574C /* ImageProcessor.swift in Sources */,
+				DD0953BF1D38082600FDB30D /* MotionAndLocationManager.swift in Sources */,
+				DD6EC9801D26062000830939 /* CoreDataTableViewController.swift in Sources */,
 				80313D281C1AB7C600C14F99 /* mp1.xcdatamodeld in Sources */,
+				DDD971BC1D356D2200312A31 /* CustomPhotoAlbumManager.swift in Sources */,
 				80313D201C1AB7C600C14F99 /* AppDelegate.swift in Sources */,
+				DD55F02F1D26DA7C00719719 /* LevelerUIImagePickerController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -321,14 +408,6 @@
 			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
-		80313D2B1C1AB7C600C14F99 /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				80313D2C1C1AB7C600C14F99 /* Base */,
-			);
-			name = LaunchScreen.storyboard;
-			sourceTree = "<group>";
-		};
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
@@ -345,8 +424,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -368,7 +449,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.1;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -389,8 +470,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -406,9 +489,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -417,14 +501,17 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_USE_OPTIMIZATION_PROFILE = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = CY28H8F7X8;
 				INFOPLIST_FILE = mp1/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.duke.edu.ant.mp1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -432,14 +519,17 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_USE_OPTIMIZATION_PROFILE = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = CY28H8F7X8;
 				INFOPLIST_FILE = mp1/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.duke.edu.ant.mp1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -451,6 +541,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nicschool.mp1Tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/mp1.app/mp1";
 			};
 			name = Debug;
@@ -463,6 +554,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nicschool.mp1Tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/mp1.app/mp1";
 			};
 			name = Release;
@@ -474,6 +566,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nicschool.mp1UITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_TARGET_NAME = mp1;
 				USES_XCTRUNNER = YES;
 			};
@@ -486,6 +579,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nicschool.mp1UITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_TARGET_NAME = mp1;
 				USES_XCTRUNNER = YES;
 			};
@@ -501,7 +595,7 @@
 				80313D461C1AB7C600C14F99 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		80313D471C1AB7C600C14F99 /* Build configuration list for PBXNativeTarget "mp1" */ = {
 			isa = XCConfigurationList;
@@ -510,7 +604,7 @@
 				80313D491C1AB7C600C14F99 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		80313D4A1C1AB7C600C14F99 /* Build configuration list for PBXNativeTarget "mp1Tests" */ = {
 			isa = XCConfigurationList;
@@ -519,7 +613,7 @@
 				80313D4C1C1AB7C600C14F99 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		80313D4D1C1AB7C600C14F99 /* Build configuration list for PBXNativeTarget "mp1UITests" */ = {
 			isa = XCConfigurationList;
@@ -528,7 +622,7 @@
 				80313D4F1C1AB7C600C14F99 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 
@@ -540,6 +634,16 @@
 			);
 			currentVersion = 80313D271C1AB7C600C14F99 /* mp1.xcdatamodel */;
 			path = mp1.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+		DDE0F3F11D1B2033000B81EB /* Model.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				DDE0F3F21D1B2033000B81EB /* Model.xcdatamodel */,
+			);
+			currentVersion = DDE0F3F21D1B2033000B81EB /* Model.xcdatamodel */;
+			path = Model.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};

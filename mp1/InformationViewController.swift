@@ -9,99 +9,201 @@
 import UIKit
 import CoreLocation
 import AVFoundation
+import Foundation
+import CoreMotion
 
 class InformationViewController: UIViewController, CLLocationManagerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
-
+    
     @IBOutlet var Lat_label: UILabel!
     @IBOutlet var Long_label: UILabel!
-
     @IBOutlet var theta_label: UILabel!
     @IBOutlet var phi_label: UILabel!
     
-    let locationManager = CLLocationManager()
-    let locationManagerDirection = CLLocationManager()
+    fileprivate let locationManager = CLLocationManager()
+    //private let locationManagerDirection = CLLocationManager()
     
-    var LatitudeGPS = NSString()
-    var LongitudeGPS = NSString()
+    fileprivate var LatitudeGPS = NSString()
+    fileprivate var LongitudeGPS = NSString()
+    fileprivate var imageProject = ImageProject()
     
     @IBOutlet var response_label: UILabel!
     
     @IBOutlet var myImageView: UIImageView! {
         didSet {
-            myImageView.contentMode = .ScaleAspectFit
+            myImageView.contentMode = .scaleAspectFit
         }
     }
-//  @IBOutlet var myActivityIndicator: UIActivityIndicatorView!
+    //  @IBOutlet var myActivityIndicator: UIActivityIndicatorView!
     
     @IBOutlet var theta_slider: UISlider!
     @IBOutlet var phi_slider: UISlider!
-    
-    
     @IBOutlet var magLabel: UILabel!
     
     // To display changing Theta value on the app screen
     
-    @IBAction func thetaSliderValueChanged(sender: UISlider) {
- 
-                let currentValue = Int(sender.value)
-                print("Slider changing to \(currentValue)")
+    @IBAction func thetaSliderValueChanged(_ sender: UISlider) {
         
-                dispatch_async(dispatch_get_main_queue(),{
-                    self.theta_label.text = "\(currentValue)"
-                })
+        let currentValue = Int(sender.value)
+        //print("Slider changing to \(currentValue)")
+        
+        DispatchQueue.main.async(execute: {
+            self.theta_label.text = "\(currentValue)"
+        })
         
     }
     
- 
+    
     // To display changing Phi value on the app screen
     
-    @IBAction func phiSliderValueChanged(sender: UISlider) {
-
-                let currentValue = Int(sender.value)
-                print("Slider changing to \(currentValue)")
+    @IBAction func phiSliderValueChanged(_ sender: UISlider) {
         
-                dispatch_async(dispatch_get_main_queue(),{
-                    self.phi_label.text = "\(currentValue)"
-                })
-    
+        let currentValue = Int(sender.value)
+        //print("Slider changing to \(currentValue)")
+        
+        DispatchQueue.main.async(execute: {
+            self.phi_label.text = "\(currentValue)"
+        })
+        
     }
     
+    fileprivate var picker = LevelerUIImagePickerController()
+       // ProtraitUIImagePickerController()
+    
+    fileprivate func updateGeoInfoToProject() {
+        imageProject.latitude = locationManager.location?.coordinate.latitude
+        imageProject.longtidude = locationManager.location?.coordinate.longitude
+        imageProject.heading = locationManager.heading?.trueHeading
+        if let motionData = motionManager.deviceMotion {
+            var xoffset = CGFloat(motionData.attitude.roll)
+            let yoffset = CGFloat(motionData.attitude.pitch) //* LevelerParameters.Sensitivity
+            xoffset = min(abs(xoffset), 3-abs(xoffset)) * xoffset / abs(xoffset) //* LevelerParameters.Sensitivity
+            imageProject.leveler = LevelInformation(x: xoffset, y: yoffset)
+        } else {
+            imageProject.leveler = nil
+        }
+    }
     
     // This function is called when the user clicks on the button "Capture Image"
-
+    @objc func changeToConfirmScreenOverlay() {
+        updateGeoInfoToProject()
+        if let cameraOverlayView = picker.cameraOverlayView as? CameraOverlayView {
+            let pickerFrame = picker.view.frame
+            let shortSide = pickerFrame.width < pickerFrame.height ?  pickerFrame.width : pickerFrame.height
+            let longSide = pickerFrame.width >= pickerFrame.height ?  pickerFrame.width : pickerFrame.height
+            let overlayNewFrame = CGRect(x: 0, y: 0, width: shortSide, height: longSide - PhotoScreenBounds.confirmScreenLowerBound)
+            cameraOverlayView.frame = overlayNewFrame
+            cameraOverlayView.screenMode = .photoConfirmScreen
+        }
+    }
+    
+    @objc func changeToPhotoCatureOverlay(_ picker : UIImagePickerController) {
+        if let cameraOverlayView = self.picker.cameraOverlayView as? CameraOverlayView {
+            let pickerFrame = self.picker.view.frame
+            cameraOverlayView.frame = pickerFrame
+            cameraOverlayView.screenMode = .photoCaptureScreen
+        }
+    }
+    
+    fileprivate func setCameraPicker() {
+        let status = AVCaptureDevice.authorizationStatus(forMediaType: AVMediaTypeVideo)
+        
+        if status == .authorized {
+            picker.delegate = self
+            picker.sourceType = .camera
+            picker.cameraCaptureMode = .photo
+            //picker.mediaTypes = .kUTTypeImage
+        }
+    }
+    
     @IBAction func clickedOnCaptureImage() {
         
         print("In clickedOnCaptureImage")
-        let status = AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo)
+        let status = AVCaptureDevice.authorizationStatus(forMediaType: AVMediaTypeVideo)
         
-        if status == .Authorized {
-            let picker = UIImagePickerController()
-            picker.delegate = self
-            picker.sourceType = .Camera
-            //picker.showsCameraControls = false
-            picker.allowsEditing = true
-            picker.cameraCaptureMode = .Photo
-            presentViewController(picker, animated: true, completion: nil)
+        if status == .authorized {
+            if (UIImagePickerController.isSourceTypeAvailable(.camera)) {
+                NotificationCenter.default.addObserver(
+                    self,
+                    selector: #selector(changeToConfirmScreenOverlay),
+                    name: NSNotification.Name(rawValue: "_UIImagePickerControllerUserDidCaptureItem"),
+                    object: nil
+                )
+                NotificationCenter.default.addObserver(
+                    self,
+                    selector: #selector(changeToPhotoCatureOverlay),
+                    name: NSNotification.Name(rawValue: "_UIImagePickerControllerUserDidRejectItem"),
+                    object: nil
+                )
+                
+                //picker.modalPresentationStyle = UIModalPresentationStyle.FullScreen
+                let currentDevice = UIDevice.current
+                if !picker.isBeingPresented {
+                    present( self.picker, animated: false, completion: {
+                        let cameraOverlayViewController = CameraOverlayViewController(nibName: "CameraOverlayViewController", bundle: nil)
+                        let cameraOverlayView = cameraOverlayViewController.view as! CameraOverlayView
+                        
+                        cameraOverlayView.frame = self.picker.view.frame
+                        cameraOverlayView.screenMode = .photoCaptureScreen
+                        self.picker.cameraOverlayView = cameraOverlayView
+                        self.picker.addLevelerViewToOverlayView()
+            
+                        while (currentDevice.isGeneratingDeviceOrientationNotifications) {
+                            currentDevice.endGeneratingDeviceOrientationNotifications()
+                        }
+                    })
+                }
+                picker.view.setNeedsLayout()
+            }
+            
         } else {
-            let noCameraPermissionAlert = UIAlertController(title: nil, message: "No permission to camera, please go to setting -> privacy -> camera", preferredStyle: .Alert)
-            noCameraPermissionAlert.addAction(UIAlertAction(title: "OK", style: .Cancel, handler: nil))
-            //presentViewController(noCameraPermissionAlert, animated: true, completion: nil)
+            let noCameraPermissionAlert = UIAlertController(title: nil, message: "No permission to camera, please go to setting -> privacy -> camera", preferredStyle: .alert)
+            noCameraPermissionAlert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
         }
     }
     
-    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
-        
-        let status = AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo)
-        if status == .Authorized {
-            self.myImageView.image = info[UIImagePickerControllerEditedImage] as? UIImage
-        }
-        dismissViewControllerAnimated(true, completion: nil)
-        
+    
+    
+    @IBAction func clickedOnPhotoLibrary() {
+        picker.delegate = self
+        picker.sourceType = .photoLibrary
+        present(picker, animated: true, completion: nil)
     }
     
-    private func askForCamperaPermission() {
-        AVCaptureDevice.requestAccessForMediaType(AVMediaTypeVideo) {
+    fileprivate var displayImage : UIImage? {
+        get {
+            return myImageView.image
+        }
+        
+        set {
+            myImageView.image = newValue
+            imageProject.originalImage = newValue
+        }
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+        
+        switch picker.sourceType {
+        case .camera:
+            let status = AVCaptureDevice.authorizationStatus(forMediaType: AVMediaTypeVideo)
+            if status == .authorized {
+                if let originalImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
+                    displayImage = UIImage.createSquareImage(fromImage: originalImage)
+                }
+            }
+        case .photoLibrary:
+            if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
+                displayImage = UIImage.normalizeImage(image)
+            }
+            
+        default:
+            break
+        }
+        dismiss(animated: true, completion: nil)
+    }
+    
+    fileprivate func askForCamperaPermission() {
+        AVCaptureDevice.requestAccess(forMediaType: AVMediaTypeVideo) {
             granted in
             if (granted) {
                 print("User allowed camera")
@@ -111,199 +213,173 @@ class InformationViewController: UIViewController, CLLocationManagerDelegate, UI
         }
     }
     
+    override var shouldAutorotate : Bool {
+        return false
+    }
+    
+    override var supportedInterfaceOrientations : UIInterfaceOrientationMask {
+        return UIInterfaceOrientationMask.portrait
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        let currentDevice = UIDevice.current
+        while (currentDevice.isGeneratingDeviceOrientationNotifications) {
+            currentDevice.endGeneratingDeviceOrientationNotifications()
+        }
+     }
+    
+    @objc fileprivate func printOrientationChange() {
+        print("orientation changed")
+    }
+    
+    @IBOutlet weak var levelerView: LevelerView!
+    fileprivate var motionManager = CMMotionManager()
+    
+    fileprivate func startToCheckAttitude() {
+        let queue = OperationQueue()
+        if motionManager.isDeviceMotionAvailable {
+            motionManager.deviceMotionUpdateInterval = LevelerParameters.updateInterval
+            motionManager.startDeviceMotionUpdates(to: queue)
+            {
+                [weak weakSelf = self] (data, error) in
+                
+                guard let motionData = data else {return }
+                var xoffset = CGFloat(motionData.attitude.roll)
+                let yoffset = CGFloat(motionData.attitude.pitch) * LevelerParameters.sensitivity
+                
+                xoffset = min(abs(xoffset), 3-abs(xoffset)) * xoffset / abs(xoffset) * LevelerParameters.sensitivity
+                
+                OperationQueue.main.addOperation {
+                    weakSelf?.levelerView.offset = CGPoint(x: xoffset, y:yoffset)
+                }
+            }
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        startToCheckAttitude()
+        updateLocation()
+        //startToCheckAttitude()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        print("In viewDidLoad")
-        updateLocation()
+        //print("In viewDidLoad")
+        
         askForCamperaPermission()
-        }
+        setCameraPicker()
+        NotificationCenter.default.addObserver(self, selector: #selector(printOrientationChange), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
+        
+        
+    }
     
+    fileprivate func stopCheckingAttitude()
+    {
+        motionManager.stopDeviceMotionUpdates()
+        
+    }
+    fileprivate func stopUpdatingLocation()
+    {
+        locationManager.stopUpdatingHeading()
+        locationManager.stopUpdatingLocation()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        
+        print("view disapear, disable attitude and location")
+        super.viewDidDisappear(animated)
+        stopCheckingAttitude()
+        stopUpdatingLocation()
+    }
+    
+
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
+    
     
     // This function is called when the user clicks on the button "Process Image"
     
-    @IBAction func myImageUploadRequest(sender: AnyObject) {
+    @IBAction func myImageUploadRequest(_ sender: AnyObject) {
         
-                // The IP address in the URL below needs to be changed according to the web server details.
-        
-                let myUrl = NSURL(string: "http://71.69.186.89/nicmpfromapp/http-post-example-script.php");
-                let request = NSMutableURLRequest(URL:myUrl!);
-                request.HTTPMethod = "POST";
-        
-                let param = [
-                    "firstName"  : "Sriram",
-                    "lastName"    : "Vepuri",
-                    "theta" : String(theta_label.text!),
-                    "phi": String(phi_label.text!)
-                ]
-        
-                let boundary = generateBoundaryString()
-                request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-                let imageData = UIImageJPEGRepresentation(myImageView.image!, 1)
-        
-                if(imageData==nil)  {
-                    print("imageData is NULL")
-                    return;
-                } else {
-                    print("imageData has data")
-                    print(imageData?.length)
-                }
-        
-                request.HTTPBody = createBodyWithParameters(param, filePathKey: "file", imageDataKey: imageData!, boundary: boundary)
-        
-                let timestamp = NSDateFormatter.localizedStringFromDate(NSDate(), dateStyle: .MediumStyle, timeStyle: .ShortStyle)
-                print(timestamp)
-        
-                let sessionConfig = NSURLSessionConfiguration.defaultSessionConfiguration()
-       
-        //      Use these below parameters to increase the time interval to receive response from the web server
-        //      sessionConfig.timeoutIntervalForRequest = 500.0;
-        //      sessionConfig.timeoutIntervalForResource = 500.0;
-        
-                let session = NSURLSession(configuration: sessionConfig)
-                let task = session.dataTaskWithRequest(request, completionHandler: {(data, response, error) in
-                    
-                    // You can print out response object
-                    print("******* response = \(response)")
-            
-                    // Print out reponse body
-                    let responseString = NSString(data: data!, encoding: NSUTF8StringEncoding)
-                    print("****** response data = \(responseString!)")
-
-                    self.response_label.text = responseString as? String
-                    print(self.response_label.text)
-            
-                        dispatch_async(dispatch_get_main_queue(),{
-                            self.performSegueWithIdentifier("segueToResultsVC", sender: self)
-                        });
-                });
-        
-            task.resume()
+        //let imageProcessor = ImageProcessor()
+        //imageProcessor.inputImage = myImageView.image
+        //imageProcessor.resultImage
+        self.performSegue(withIdentifier: "segueToResultsVC", sender: self)
     }
     
     
     // This function is called to take the user to the next screen in the app, when the image processing result is sent by the web server.
     
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any!) {
+        print("prepare for segue")
         if (segue.identifier == "segueToResultsVC") {
             
-            let svc = segue.destinationViewController as! ResultsVC;
-            svc.toPass = response_label.text
-            
+            let svc = segue.destination as! ResultsVC;
+            svc.imageProject = imageProject
         }
     }
     
+    // The following 3 functions are related to the GPS details
     
-        func createBodyWithParameters(parameters: [String: String]?, filePathKey: String?, imageDataKey: NSData, boundary: String) -> NSData {
-        let body = NSMutableData();
-        
-        if parameters != nil {
-            for (key, value) in parameters! {
-                body.appendString("--\(boundary)\r\n")
-                body.appendString("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n")
-                body.appendString("\(value)\r\n")
-            }
-        }
-        
-        let filename = "location-image.jpg"
-        let mimetype = "image/jpg"
-
-//        let filename = "user-profile.png"
-//        let mimetype = "image/png"
-            
-        body.appendString("--\(boundary)\r\n")
-        body.appendString("Content-Disposition: form-data; name=\"\(filePathKey!)\"; filename=\"\(filename)\"\r\n")
-        body.appendString("Content-Type: \(mimetype)\r\n\r\n")
-            
-        print("imageDataKey details ....")
-        print(imageDataKey.length)
-            
-        body.appendData(imageDataKey)
-        body.appendString("\r\n")
-        body.appendString("--\(boundary)--\r\n")
-            
-        return body
+    func updateLocation() {
+        self.locationManager.delegate = self
+        self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        self.locationManager.requestWhenInUseAuthorization()
+        self.locationManager.startUpdatingLocation()
+        self.locationManager.startUpdatingHeading()
     }
     
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        //          locationManager.stopUpdatingLocation() 
+        //  Stop Location Manager - keep here to run just once
+        LatitudeGPS = String(format: "%.2f", manager.location!.coordinate.latitude) as NSString
+        LongitudeGPS = String(format: "%.2f", manager.location!.coordinate.longitude) as NSString
+        Lat_label.text = LatitudeGPS as String
+        Long_label.text = LongitudeGPS as String
+    }
     
-        func generateBoundaryString() -> String {
-            return "Boundary-\(NSUUID().UUIDString)"
-        }
-
-
-    
-        // The following 3 functions are related to the GPS details
-    
-        func updateLocation() {
-            self.locationManager.delegate = self
-            self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
-            //self.locationManager.distanceFilter = 10
-            self.locationManager.requestWhenInUseAuthorization()
-            self.locationManager.startUpdatingLocation()
-            self.locationManager.startUpdatingHeading()
-        }
-    
-        func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-//          locationManager.stopUpdatingLocation() // Stop Location Manager - keep here to run just once
-            LatitudeGPS = String(format: "%.15f", manager.location!.coordinate.latitude)
-            LongitudeGPS = String(format: "%.15f", manager.location!.coordinate.longitude)
-            Lat_label.text = LatitudeGPS as String
-            Long_label.text = LongitudeGPS as String
-        }
-    
-//        func locationManagerDirection(manager: CLLocationManager, didUpdateHeading newHeading: [CLHeading]) {
-//            print(newHeading.magneticHeading)
-//        }
-    
-    
-        func locationManager(manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
-            var h = newHeading.magneticHeading
-            let h2 = newHeading.trueHeading // will be -1 if we have no location info
-            
-            if h2 >= 0 {
-                h = h2
-            }
-            
-            let cards = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
-            var dir = "N"
-            
-            for (ix, card) in cards.enumerate() {
-                if h < 45.0/2.0 + 45.0*Double(ix) {
-                    dir = card
-                    break
-                }
-            }
-
-            let concatnatedValue = dir + " " + String(h)
-            magLabel.text = concatnatedValue
-            print(concatnatedValue)
+    func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
+        var h = newHeading.magneticHeading
+        let h2 = newHeading.trueHeading // will be -1 if we have no location info
         
+        if h2 >= 0 {
+            h = h2
         }
-
+        
+        let cards = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
+        var dir = "N"
+        
+        for (ix, card) in cards.enumerated() {
+            if h < 45.0/2.0 + 45.0*Double(ix) {
+                dir = card
+                break
+            }
+        }
+        
+        let concatnatedValue = dir + " " + String(format:"%.2f", h2)
+        magLabel.text = concatnatedValue
+        
+        OperationQueue.main.addOperation {
+            
+            [weak weakSelf = self] in
+            weakSelf?.levelerView.direction = CGFloat(h2)
+        }
+        
+    }
+    
 }
 
 
 
 
-extension NSMutableData {
-    
-    /// Append string to NSMutableData
-    ///
-    /// Rather than littering my code with calls to `dataUsingEncoding` to convert strings to NSData, and then add that data to the NSMutableData, this wraps it in a nice convenient little extension to NSMutableData. This converts using UTF-8.
-    ///
-    /// - parameter string:       The string to be added to the `NSMutableData`.
-    
-    func appendString(string: String) {
-        let data = string.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true)
-        appendData(data!)
-    }
-}
+
+
 
 
