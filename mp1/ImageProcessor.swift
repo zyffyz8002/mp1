@@ -192,9 +192,9 @@ class ImageProcessor
         var maxTree : Int = 0
         var localTh : Int = 0
         
-        func LinearScale(_ value: Int, _ lowerBound: Int, _ upperBound: Int) -> Int {
+        func LinearScale(_ value: Int, _ lowerBound: Int, _ upperBound: Int) -> Double {
             
-            return Int((value - lowerBound) / (upperBound - lowerBound) * 255 )
+            return Double(value - lowerBound) / Double(upperBound - lowerBound) * 255
         }
         
         for w in 0..<width! {
@@ -237,16 +237,18 @@ class ImageProcessor
                                     finalImageArray[index] = 255
                                     skyPoints = skyPoints! + 1
                                 } else {
-                                    finalImageArray[index] = LinearScale(blueChannel[index], maxTree, localTh)
-                                    nonSkyPoints = nonSkyPoints! + Double(finalImageArray[index]) / 255.0
+                                    let currentPixelWeight = LinearScale(blueChannel[index], maxTree, localTh)
+                                    finalImageArray[index] = Int(currentPixelWeight)
+                                    nonSkyPoints = nonSkyPoints! + currentPixelWeight / 255.0
                                 }
                             } else {
                                 if (blueChannel[index] < localTh) {
                                     finalImageArray[index] = 0
                                     nonSkyPoints = nonSkyPoints! + 1
                                 } else {
-                                    finalImageArray[index] = LinearScale(blueChannel[index], localTh, minSky)
-                                    nonSkyPoints = nonSkyPoints! + Double(finalImageArray[index]) / 255.0
+                                    let currentPixelWeight = LinearScale(blueChannel[index], localTh, minSky)
+                                    finalImageArray[index] = Int(currentPixelWeight)
+                                    nonSkyPoints = nonSkyPoints! + currentPixelWeight / 255.0
                                 }
                             }
                             
